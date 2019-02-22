@@ -1,0 +1,7 @@
+---
+
+- name: Install Nginx
+  include: "install.yml"
+
+- name: Config Nginx
+  include: "config.yml"

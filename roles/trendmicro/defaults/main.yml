@@ -1,0 +1,28 @@
+---
+
+# these are defualt values for trendmicro role
+
+## Generic Options ##
+
+# trendmicro_provider - hosted or saas - the provider for the trend micro service
+trendmicro_provider: hosted
+# trendmicro_url - the url to download the package
+trendmicro_url: https://internal-TrendMicro-DSMELB-BE5I5P5MV4P7-2129401850.us-east-1.elb.amazonaws.com:443/software/deploymentscript/platform/linux/
+# trendmicro_checksum - the checksum of the pacakge
+trendmicro_checksum: 69F07E0FCC8BC9DA3595E7802C97C6A86EDC66ADBE7E7A74B4379429527BBF0D
+# trendmicro_checksum_algo - the algorithm for the checksum
+trendmicro_checksum_algo: sha256
+# trendmicro_dsm_url - the url and port of the server to configure trend micro
+trendmicro_dsm_url: dsm://internal-TrendMicro-DSMELB-BE5I5P5MV4P7-2129401850.us-east-1.elb.amazonaws.com:4120/
+# trendmico_policy_id - the policy ID to configure trendmicro
+trendmicro_policy_id: 21
+
+## SaaS only options ##
+# trendmicro_tenant_id - the value for the tenant id
+trendmicro_tenant_id: dev.trendmicro.tenant-id
+# trendmicro_tenant_id_location - the location of the tenant id value
+trendmicro_tenant_id_location: param_store
+# trendmicro_token - the value for the token
+trendmicro_token: dev.trendmicro.token
+# trendmicro_token_location - the location for the token value
+trendmicro_token_location: param_store

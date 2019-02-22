@@ -1,0 +1,41 @@
+---
+
+- name: Ensure ansible_modules Dir Exists
+  file:
+    path: /root/ansible_modules
+    owner: root
+    group: root
+    mode: 0744
+    state: directory
+
+- name: Ensure Module Library Dir Exists
+  file:
+    path: /usr/share/my_modules
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Ensure /usr/share/ansible Dir Exists
+  file:
+    path: /usr/share/ansible
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Ensure /usr/share/ansible/plugins Dir Exists
+  file:
+    path: /usr/share/ansible/plugins
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Ensure /usr/share/ansible/plugins/lookup Dir Exists
+  file:
+    path: /usr/share/ansible/plugins/lookup
+    owner: root
+    group: root
+    mode: 0755
+    state: directory

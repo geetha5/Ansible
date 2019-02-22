@@ -1,0 +1,27 @@
+---
+
+- name: Create Self Signed Squid Cert
+  shell: |
+    openssl genrsa -out squid.key 2048
+    openssl req -new -key squid.key -out squid.csr -subj "/C=XX/ST=XX/L=squid/O=squid/CN=squid"
+    openssl x509 -req -days 3650 -in squid.csr -signkey squid.key -out squid.crt
+    cat squid.key squid.crt | sudo tee squid.pem
+  args:
+    chdir: /etc/squid/ssl
+    creates: squid.pem
+
+- name: Squid Config File
+  template:
+    src: squid.conf.j2
+    dest: /etc/squid/squid.conf
+    owner: root
+    group: root
+    mode: 0664
+  notify: Squid Reload
+
+- name: Squid Start
+  service:
+    name: squid
+    state: started
+
+

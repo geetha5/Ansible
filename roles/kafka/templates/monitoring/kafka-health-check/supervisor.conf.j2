@@ -1,0 +1,19 @@
+[program:kafka-health-check]
+command=kafka-health-check
+        -broker-host {{ kafka_broker_dns }}
+        -broker-id {{ kafka_broker_id }}
+        -check-interval {{ kafka_hc_check_interval }}
+        -replication-failures-count {{ kafa_hc_replication_failure_count }}
+        -replication-topic {{ kafka_hc_replication_topic }}
+        -server-port {{ kafka_hc_port }}
+        -no-topic-creation
+        -zookeeper {{ kafka_zookeeper_list }}
+autostart=true
+autorestart=true
+startsecs=10
+stopsignal=KILL
+user=root
+stopwaitsecs=30
+stderr_logfile = /var/log/supervisor/kafka-health-check-stderr.log
+stdout_logfile = /var/log/supervisor/kafka-health-check-stdout.log
+

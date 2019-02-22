@@ -1,0 +1,24 @@
+---
+
+- name: Kafka-HC download location
+  set_fact:
+    kafka_hc_url_type: "{{ kafka_hc_package_url | regex_replace('(.*)://.*', '\\1') }}"
+
+- name: Set Kafka-HC Archive Name
+  set_fact:
+    kafka_hc_archive_name: "{{ kafka_hc_package_url | regex_replace('.*\\/(.*\\.(tgz|zip|tar\\.gz))$', '\\1') }}"
+
+- name: Kafka-HC Web Download
+  include_tasks: kafka-health-check/download-web.yml
+  when: (kafka_hc_url_type == "http") or
+        (kafka_hc_url_type == "https")
+
+- name: Kafka-HC S3 Download
+  include_tasks: kafka-health-check/download-s3.yml
+  when: kafka_hc_url_type == "s3"
+
+- name: Kafka-HC Install
+  include_tasks: kafka-health-check/install.yml
+
+- name: Kafka-HC Config
+  include_tasks: kafka-health-check/config.yml

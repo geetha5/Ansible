@@ -1,0 +1,6 @@
+tomcat_conf_contexts:
+- path: online/
+  jarScan:
+    classPath: false
+    tld: "joda-time-jsp*.jar,jstl-*.jar,spring-webmvc-*.jar,tiles-jsp-*.jar,string-*.jar"
+    default: false

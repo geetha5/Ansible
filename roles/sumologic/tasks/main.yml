@@ -1,0 +1,20 @@
+---
+
+- name: Get Sumologic download location
+  set_fact:
+    sumologic_url_type: "{{ sumologic_rpm_url | regex_replace('^(.*)://.*', '\\1') }}"
+
+- name: Sumologic Web Download
+  include_tasks: download-web.yml
+  when: (sumologic_url_type == "http") or
+        (sumologic_url_type == "https")
+
+- name: Sumologic S3 Download 
+  include_tasks: download-s3.yml
+  when: sumologic_url_type == "s3"
+
+- name: Configure Sumologic
+  include_tasks: config.yml
+
+- name: Sumologic Install
+  include_tasks: install.yml

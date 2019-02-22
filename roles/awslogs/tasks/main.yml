@@ -1,0 +1,7 @@
+---
+
+- name: Awslogs install
+  include_tasks: install.yml
+
+- name: Awslogs configure
+  include_tasks: config.yml

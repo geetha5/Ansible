@@ -1,0 +1,11 @@
+---
+- file:
+    path: /opt/appdynamics/AppServerAgent
+    state: directory
+    mode: 0755
+
+- name: Install AppDynamics AppServer Agent
+  unarchive:
+    src: /root/installers/{{ appd_app_agent_archive_name }}
+    dest: /opt/appdynamics/AppServerAgent
+    remote_src: yes

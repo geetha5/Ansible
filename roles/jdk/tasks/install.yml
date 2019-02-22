@@ -1,0 +1,33 @@
+---
+
+- name: Install JDK
+  yum:
+    name: /root/installers/{{ jdk_rpm_name }}
+    state: present
+
+- name: JDK version fact
+  set_fact:
+    jdk_version: "{{ jdk_rpm_name | regex_replace('jdk-(\\d)u\\d+.*', '1.\\1.0') }}"
+
+- name: JDK build fact
+  set_fact:
+    jdk_build: "{{ jdk_rpm_name | regex_replace('jdk-\\du(\\d+).*', '\\1') }}"
+
+- name: JDK home fact
+  set_fact:
+    jdk_home: "/usr/java/jdk{{ jdk_version }}_{{ jdk_build }}"
+
+- name: JRE home fact
+  set_fact:
+    jre_home: "/usr/java/jdk{{ jdk_version }}_{{ jdk_build }}/jre"
+
+- name: Java profile.d script
+  template:
+    src: jdk_profile.j2
+    dest: /etc/profile.d/jdk.sh
+    owner: root
+    group: root
+    mode: 0744
+
+- name: Source JDK profile changes
+  shell: source /etc/profile

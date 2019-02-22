@@ -1,0 +1,19 @@
+---
+
+- name: Set Common AppDynamics AppServer Agent Facts
+  include_tasks: "facts.yml"
+
+- name: AppDynamics AppServer Agent Web Download
+  include_tasks: "download-web.yml"
+  when: (appd_app_agent_url_type == "http") or
+        (appd_app_agent_url_type == "https")
+
+- name: AppDynamics AppServer Agent S3 Download
+  include_tasks: "download-s3.yml"
+  when: appd_app_agent_url_type == "s3"
+
+- name: AppDynamics AppServer Agent Install
+  include_tasks: "install.yml"
+
+- name: Configure AppServer Machine Agent
+  include_tasks: "config.yml"

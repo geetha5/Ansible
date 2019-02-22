@@ -1,0 +1,10 @@
+# Set JAVA_HOME and PATH for Jdk
+
+export JAVA_HOME={{ jdk_home }}
+export PATH=$PATH:{{ jdk_home }}/bin:{{ jre_home }}/bin
+
+
+{% if java_opts is defined %} 
+# Set JAVA_OPTS
+export JAVA_OPTS="{{ java_opts }}"  
+{% endif %}

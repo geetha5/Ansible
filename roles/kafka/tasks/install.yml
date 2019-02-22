@@ -1,0 +1,56 @@
+---
+
+- name: Create Kafka Group
+  group:
+    name: kafka
+    state: present
+
+- name: Create Kafka User
+  user:
+    name: kafka
+    group: kafka
+    state: present
+    shell: "/sbin/nologin"
+
+- name: Unpack Kafka
+  unarchive:
+    src: "/root/installers/{{ kafka_archive_name }}"
+    dest: "/opt"
+    owner: kafka
+    group: kafka
+
+- name: Install Kazoo (pip) - present or latest
+  pip:
+    name: kazoo
+    state: "{{ kafka_kazoo_package_state }}"
+  when: kafka_kazoo_package_state != "version"
+
+- name: Install Kazoo (pip) - version
+  pip:
+    name: kazoo
+    version: "{{ kafka_kazoo_package_version }}"
+  when: kafka_kazoo_package_version != "none"
+
+- name: Link Kafka to Kafka-active
+  file:
+    src: "/opt/{{ kafka_dir_name }}"
+    dest: "/opt/kafka-active"
+    state: link
+    owner: kafka
+    group: kafka
+
+- name: Place Kafka Init
+  template:
+    src: kafka.j2
+    dest: "/etc/init.d/kafka"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create Kafka Log Dirs
+  file:
+    path: "{{ item }}"
+    owner: kafka
+    group: kafka
+    state: directory
+  with_items: "{{ kafka_log_dirs }}"

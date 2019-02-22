@@ -1,0 +1,7 @@
+---
+
+- name: NTP Install
+  include_tasks: "install.yml"
+
+- name: NTP Configure
+  include_tasks: "config.yml"

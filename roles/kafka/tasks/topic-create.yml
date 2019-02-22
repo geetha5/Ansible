@@ -1,0 +1,17 @@
+---
+
+- name: Check if topic exists
+  shell: "/opt/{{ kafka_dir_name }}/bin/kafka-topics.sh --list --zookeeper {{ kafka_zookeeper_list }} | grep {{ item.key }}"
+  ignore_errors: yes
+  register: topic_grep_result
+
+- name: Create Topic
+  shell: >
+    /opt/{{ kafka_dir_name }}/bin/kafka-topics.sh
+    --create
+    --zookeeper {{ kafka_zookeeper_list }}
+    --replication-factor {{ item.value.replication_factor }}
+    --partitions {{ item.value.partitions }}
+    --topic {{ item.key }}
+  when: topic_grep_result.rc != 0
+

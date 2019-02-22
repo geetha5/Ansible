@@ -1,0 +1,16 @@
+---
+
+cloudwatch_agent_metrics:
+  cpu:
+    resources:
+    - "*"
+    total_cpu: "true"
+    measurements:
+    - cpu_usage_idle
+    - cpu_usage_nice
+  mem:
+    measurements:
+    - mem_used
+    - mem_cached
+    - mem_total
+    collection_interval: 10

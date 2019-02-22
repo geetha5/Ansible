@@ -1,0 +1,7 @@
+---
+
+- name: Install
+  include: install.yml
+
+- name: Config
+  include: config.yml

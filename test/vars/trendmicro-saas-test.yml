@@ -1,0 +1,6 @@
+---
+
+trendmicro_provider: saas
+trendmicro_url: https://s3.amazonaws.com/trendmicro-agents-us-east-1/Agent-Core-amzn1-10.1.0-356.x86_64/Agent-Core-amzn1-10.1.0-356.x86_64.rpm
+trendmicro_dsm_url: dsm://agents.deepsecurity.trendmicro.com:443/
+trendmicro_policy_id: 201

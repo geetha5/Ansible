@@ -1,0 +1,63 @@
+---
+
+# Get Supervisor password from Param Store
+- name: Get Supervisor Password
+  shell: >
+    aws ssm get-parameter --name {{ supervisor_password_param_name }} --with-decryption --query 'Parameter.Value' --output text
+    --region {{ ansible_ec2_placement_region }}
+  register: supervisor_password
+
+# Make Supervisor Directories
+- name: Ensure /etc/supervisor
+  file:
+    path: /etc/supervisor
+    state: directory
+    owner: root
+    group: root
+    mode: 0770
+
+- name: Ensure /var/log/supervisor
+  file:
+    path: /var/log/supervisor
+    state: directory
+    owner: root
+    group: root
+    mode: 0770
+
+- name: Ensure /etc/supervisor/conf.d
+  file:
+    path: /etc/supervisor/conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0770
+
+- name: Ensure /var/run/supervisor.sock
+  file:
+    path: /var/run/supervisor.sock
+    state: touch
+    owner: root
+    group: root
+    mode: 770
+
+# Place config files
+- name: Supervisor Init
+  template:
+    src: init.j2
+    dest: /etc/init.d/supervisord
+    owner: root
+    group: root
+    mode: 0775
+
+- name: Supervisor Conf
+  template:
+    src: supervisord.conf.j2
+    dest: /etc/supervisor/supervisord.conf
+    owner: root
+    group: root
+    mode: 0770
+
+- name: Start Supervisor
+  service:
+    name: supervisord
+    state: started

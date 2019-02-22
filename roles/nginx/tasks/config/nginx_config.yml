@@ -1,0 +1,30 @@
+---
+
+- name: Set Config Download Location
+  set_fact:
+    nginx_config_loc_type: "{{ item.value.download_location | regex_replace('^(.*)://.*', '\\1') }}"
+
+- name: Set Config Bucket - S3
+  set_fact:
+    nginx_config_bucket: "{{ item.value.download_location | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+  when: nginx_config_loc_type == "s3"
+
+- name: Set Config Key - S3
+  set_fact:
+    nginx_config_key: "{{ item.value.download_location | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)$', '\\1') }}"
+
+- name: Download Nginx Config - S3
+  s3:
+    bucket: "{{ nginx_config_bucket }}"
+    object: "{{ nginx_config_key }}"
+    dest: "{{ item.value.config_location }}"
+    mode: get
+  notify: Restart Nginx
+
+- name: Correct Ownership - S3 Download
+  file:
+    path: "{{ item.value.config_location }}"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    mode: 0664
+

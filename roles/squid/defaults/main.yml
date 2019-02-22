@@ -1,0 +1,12 @@
+---
+
+# squid_package_state - The state of the squid pacakge
+squid_package_state: present
+
+# squid_http_allowed - a list of the sites allowed via http
+squid_http_allowed:
+- .amazonaws.com
+
+# squid_https_allowed - a list of sites allowed via https
+squid_https_allowed:
+- .amazonaws.com

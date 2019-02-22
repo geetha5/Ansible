@@ -1,0 +1,70 @@
+---
+
+- name: Create Config Directory
+  file:
+    path: "{{ cloudwatch_agent_install_dir }}/config"
+    owner: root
+    group: root
+    mode: 0644
+    state: directory
+
+- name: Get Cloudwatch Agent config location
+  set_fact:
+    cloudwatch_config_url_type: "{{ cloudwatch_config_url | regex_replace('(.*)://.*', '\\1') }}"
+  when: cloudwatch_config_url != "none"
+
+- name: Get Cloudwatch Agent config bucket
+  set_fact:
+    cloudwatch_config_s3_bucket: "{{ cloudwatch_config_url | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+  when: cloudwatch_config_url != "none" and
+        cloudwatch_config_url_type == "s3"
+
+- name: Get Cloudwatch Agent config key
+  set_fact:
+    cloudwatch_config_s3_key: "{{ cloudwatch_config_url | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)$', '\\1') }}"
+  when: cloudwatch_config_url != "none" and
+        cloudwatch_config_url_type == "s3"
+
+- name: Get Cloudwaatch Config - S3
+ aws_s3:
+    bucket: "{{ cloudwatch_config_s3_bucket }}"
+    object: "{{ cloudwatch_config_s3_key }}"
+    dest: "{{ cloudwatch_agent_install_dir }}/config/config.json"
+    mode: get
+  when: cloudwatch_config_url != "none" and
+        cloudwatch_config_url_type == "s3"
+  notify: Restart Cloudwatch Agent
+
+- name: Correct Ownership
+  file:
+    path: "{{ cloudwatch_agent_install_dir }}/config/config.json"
+    owner: root
+    group: root
+    mode: 0744
+  when: cloudwatch_config_url != "none" and
+        cloudwatch_config_url_type == "s3"
+
+- name: Create Config From Template
+  copy:
+    content: "{{ lookup('template', 'templates/cloudwatch-agent-config.json.j2') | to_nice_json }}"
+    dest: "{{ cloudwatch_agent_install_dir }}/config/config.json"
+    owner: root
+    group: root
+    mode: 0744
+  when: cloudwatch_config_url == "none"
+  notify: Restart Cloudwatch Agent
+
+- name: Place Cloudwatch Agent init.d script
+  template:
+    src: cloudwatch-agent.j2
+    dest: /etc/init.d/cloudwatch-agent
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Start Cloudwatch Agent
+  service:
+    name: cloudwatch-agent
+    state: started
+
+

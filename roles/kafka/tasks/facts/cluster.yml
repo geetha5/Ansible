@@ -1,0 +1,23 @@
+---
+
+- name: Set Broker Id (Clustered)
+  set_fact:
+    kafka_broker_id: "{{ lookup('env', 'KAFKA_BROKER_ID') }}"
+
+- name: Set Bootstrap Server (Clustered)
+  set_fact:
+    kafka_is_bootstrap_server: "{{ lookup('env', 'BOOTSTRAP_SERVER') }}"
+
+- name: Set Bootstrap Server DNS Name (Clustered)
+  set_fact:
+    kafka_bootstrap_dns_name: "{{ lookup('env', 'DNS_NAME') }}"
+  when: kafka_is_bootstrap_server
+
+- name: Set Zookeeper Server List (Clustered)
+  set_fact:
+    kafka_zookeeper_list: "{{ kafka_zookeeper_server_list | join(',') }}"
+
+- name: Set Broker DNS Name (Clustered)
+  set_fact:
+    kafka_broker_dns: "{{ kafka_dns_prefix }}-{{ kafka_broker_id }}.{{ kafka_dns_domain }}"
+

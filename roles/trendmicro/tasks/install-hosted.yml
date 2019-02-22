@@ -1,0 +1,10 @@
+---
+
+- name: Check DS Agent Install
+  shell: "rpm -qa | grep ds_agent"
+  register: ds_agent_install
+  ignore_errors: yes
+
+- name: Run TrendMicro Install Script
+  shell: ". /root/installers/DownloadInstallAgentPackage && Download_Install_Agent"
+  when: ds_agent_install.rc != 0

@@ -1,0 +1,7 @@
+---
+
+# jdk_rpm_url - The url to download the RPM from (this is the complete URL with the RPM)
+# this can be either an http(s) or s3 url
+jdk_rpm_url: s3://wex-mobile-devops/installers/jdk/jdk-8u191-linux-x64.rpm
+
+

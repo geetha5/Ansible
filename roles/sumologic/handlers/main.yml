@@ -1,0 +1,6 @@
+---
+
+- name: Restart Sumologic
+  service:
+    name: collector
+    state: restarted

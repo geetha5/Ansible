@@ -1,0 +1,17 @@
+---
+
+# zookeeper settings
+zookeeper_package_url: s3://wex-mobile-devops/installers/zookeeper/zookeeper-3.4.10.tar.gz
+
+zookeeper_cluster_type: cluster
+
+zookeeper_dns_prefix: zookeeper-kafka
+zookeeper_dns_domain: none.com
+
+zookeeper_dns_list:
+- "{{ zookeeper_dns_prefix }}-1.{{ zookeeper_dns_domain }}"
+- "{{ zookeeper_dns_prefix }}-2.{{ zookeeper_dns_domain }}"
+- "{{ zookeeper_dns_prefix }}-3.{{ zookeeper_dns_domain }}"
+
+# jdk variables
+jdk_rpm_url: "s3://wex-mobile-devops/installers/jdk/jdk-8u151-linux-x64.rpm"

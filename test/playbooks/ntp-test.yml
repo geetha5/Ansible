@@ -1,0 +1,9 @@
+---
+
+- name: ntp role test
+  hosts: localhost
+  become: yes
+  become_user: root
+
+  roles:
+    - ntp

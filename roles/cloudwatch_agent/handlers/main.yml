@@ -1,0 +1,6 @@
+---
+
+- name: Restart Cloudwatch Agent
+  service:
+    name: cloudwatch-agent
+    state: restarted

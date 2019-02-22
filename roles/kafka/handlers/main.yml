@@ -1,0 +1,16 @@
+---
+
+- name: Restart Kafka
+  shell: |
+    if [[ -z /etc/supervisor/conf.d/kafka.conf ]]; then
+      echo "restarting kafka service"
+      service kafka restart
+    else
+      echo "restarting kafa via supervisor"
+      /usr/local/bin/supervisorctl restart kafka
+    fi
+
+- name: Restart Kafka-Health-Check
+  shell: |
+    echo "restarting kafa via supervisor"
+    /usr/local/bin/supervisorctl restart kafka-health-check

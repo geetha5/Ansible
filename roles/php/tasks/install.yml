@@ -1,0 +1,13 @@
+---
+
+- name: Install PHP FPM
+  yum:
+    name: "php{{ php_version }}-fpm.x86_64"
+    state: present
+
+- name: Install Optional PHP Packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ php_optional_packages }}"
+  when: php_install_optional_packages

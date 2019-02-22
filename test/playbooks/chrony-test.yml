@@ -1,0 +1,10 @@
+---
+
+- name: Chrony test
+  hosts: localhost
+  become: yes
+  become_user: root
+
+  roles:
+    - base
+    - chrony

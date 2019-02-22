@@ -1,0 +1,31 @@
+---
+
+- name: Get Kafka Broker download location
+  set_fact:
+    kafka_url_type: "{{ kafka_package_url | regex_replace('(.*)://.*', '\\1') }}"
+
+- name: Kafka Facts
+  include_tasks: facts.yml
+
+- name: Kafka Broker Web Download
+  include_tasks: download-web.yml
+  when: (kafka_url_type == "http") or
+        (kafka_url_type == "https")
+
+- name: Kafka Broker S3 Download
+  include_tasks: download-s3.yml
+  when: kafka_url_type == "s3"
+
+- name: Kafka Broker Install
+  include_tasks: install.yml
+
+- name: Kafka Broker Config and Run
+  include_tasks: config.yml
+
+- name: Create Kafka Topics
+  include_tasks: topic-create.yml
+  with_dict: "{{ kafka_topics }}"
+  when: kafka_topics is defined
+
+- name: Kafka Monitoring tools
+  include_tasks: monitoring.yml

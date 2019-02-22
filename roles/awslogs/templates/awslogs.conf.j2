@@ -1,0 +1,28 @@
+[general]
+state_file = /var/awslogs/agent-state
+logging_config_file = /etc/awslogs/awslogs.conf
+use_gzip_http_content_encoding = {{ awslogs_use_gzip }}
+
+[bootstrap]
+log_group_name = {{ awslogs_log_group_prefix }}-bootstrap
+log_stream_name = {instance_id}
+datetime_format = "%Y-%m-%d %H:%M:%S"
+time_zone = UTC
+file = /var/log/bootstrap.log
+
+[ansible]
+log_group_name = {{ awslogs_log_group_prefix }}-ansible
+log_stream_name = {instance_id}
+datetime_format = "%Y-%m-%d %H:%M:%S"
+time_zone = UTC
+file = /var/log/ansible.log
+
+{% for key, value in awslogs_sources.iteritems() %}
+[{{ key }}]
+log_group_name = {{ awslogs_log_group_prefix }}-{{ key }}
+log_stream_name = {instance_id}
+datetime_format = {{ value.datetime_format }}
+time_zone = UTC
+file = {{ value.file }}
+
+{% endfor %}

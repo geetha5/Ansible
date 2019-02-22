@@ -1,0 +1,23 @@
+---
+
+- name: Set JDK S3 Bucket
+  set_fact:
+    jdk_s3_bucket: "{{ jdk_rpm_url | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+
+- name: Set JDK S3 Key
+  set_fact:
+    jdk_s3_key: "{{ jdk_rpm_url | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)\\/.*$', '\\1') }}"
+
+- name: Get JDK RPM - S3
+  aws_s3:
+    bucket: "{{ jdk_s3_bucket }}"
+    object: "{{ jdk_s3_key }}/{{ jdk_rpm_name }}"
+    dest: "/root/installers/{{ jdk_rpm_name }}"
+    mode: get
+
+- name: Correct Ownership
+  file: 
+    path: "/root/installers/{{ jdk_rpm_name }}"
+    owner: root
+    group: root
+    mode: 0744

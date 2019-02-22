@@ -1,0 +1,25 @@
+---
+
+- name: Set Spring Properties Path Fact
+  set_fact:
+    spring_props_dir: "{{ spring_props_file | regex_replace('^(.*)\\/.*$', '\\1') }}"
+
+- name: Ensure the Spring Properties Dir Exists
+  file:
+    path: "{{ spring_props_dir }}"
+    state: directory
+
+- name: Touch Properties File
+  file:
+    path: "{{ spring_props_file }}"
+    state: touch
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Clear the current properties file (if present)
+  shell: "echo '' > {{ spring_props_file }}"
+
+- name: Write out Spring Properties
+  include_tasks: "write_prop.yml"
+  with_dict: "{{ spring_props_properties }}"

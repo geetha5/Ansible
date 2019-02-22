@@ -1,0 +1,8 @@
+[program:zookeeper]
+command=/opt/{{ zookeeper_dir_name }}/bin/zkServer.sh start-foreground zoo.cfg
+user=zookeeper
+startsecs=10
+autostart=true
+autorestart=true
+stopsignal=INT
+stopwaitsecs=120

@@ -1,0 +1,14 @@
+---
+
+- name: Set Zookeeper Archive Name
+  set_fact:
+    zookeeper_archive_name: "{{ zookeeper_package_url | regex_replace('.*\\/(.*\\.(tgz|zip|tar\\.gz))$', '\\1') }}"
+
+- name: Set Zookeeper Directory Name
+  set_fact:
+    zookeeper_dir_name: "{{ zookeeper_package_url | regex_replace('.*\\/((.*)\\.(tgz|zip|tar\\.gz))$', '\\2') }}"
+
+- name: Set Zookeeper Instance Number (Clustered)
+  set_fact:
+    zookeeper_instance_number: "{{ lookup('env', 'ZOOKEEPER_INSTANCE_NUMBER') }}"
+  when: zookeeper_cluster_type == "cluster"

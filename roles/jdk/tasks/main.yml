@@ -1,0 +1,20 @@
+---
+
+- name: Get JDK download location
+  set_fact:
+    jdk_url_type: "{{ jdk_rpm_url | regex_replace('^(.*)://.*', '\\1') }}"
+
+- name: Set Common JDK Facts
+  include_tasks: facts.yml
+
+- name: JDK Web Download
+  include_tasks: download-web.yml
+  when: (jdk_url_type == "http") or
+        (jdk_url_type == "https")
+
+- name: JDK S3 Download
+  include_tasks: download-s3.yml
+  when: jdk_url_type == "s3"
+
+- name: JDK install
+  import_tasks: install.yml

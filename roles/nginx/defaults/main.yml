@@ -1,0 +1,16 @@
+---
+
+# nginx_user - The user for nginx
+nginx_user: nginx
+
+# nginx_doc_group - The group for nignx doc roots
+nginx_doc_group: nginx
+
+# nginx_document_roots - A list of document roots to create for nginx
+nginx_document_roots:
+
+# nginx_config_files - A dictionary of nginx config files and where to place them with the following format
+# nginx_config_files:
+#   <config 1>:
+#     download_location: <s3 uri with s3://bucket/key>
+#     config_location: <path to place the config>

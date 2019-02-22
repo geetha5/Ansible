@@ -1,0 +1,56 @@
+---
+
+# zookeeper_package_url - The download url of the zookeeper package, this
+# can be an http(s) url or an s3 url
+zookeeper_package_url: http://apache.claz.org/zookeeper/stable/zookeeper-3.4.10.tar.gz
+
+# zookeeper_use_supervisor - This will use supervisor to manage the zookeeper process instead of init.d
+zookeeper_use_supervisor: no
+
+# zookeeper_cluster_type - This is the either standalone or cluster
+# standalone is if this this is the only zookeeper server (colocated with
+# kafka or not), and cluster is if this server is part of a multi-node cluster
+zookeeper_cluster_type: standalone
+
+## General Settings ##
+
+# zookeeper_log_dir - The log dir for zookeeper logs
+zookeeper_log_dir: /var/log/zookeeper
+
+# zookeeper_log_level - The Log4j setting for log level
+zookeeper_log_level: "INFO,CONSOLE"
+
+## zookeeper config settings ##
+# zookeeper_tick_time - The number of milliseconds of each tick
+zookeeper_tick_time: 2000
+
+# The number of ticks that the initial
+# zookeeper_init_limit - synchronization phase can take
+zookeeper_init_limit: 10
+
+# The number of ticks that can pass between
+# zookeeper_sync_limit - sending a request and getting an acknowledgement
+zookeeper_sync_limit: 5
+
+# zookeeper_data_dir - the directory where the snapshot is stored.
+zookeeper_data_dir: /var/lib/zookeeper
+
+# zookeeper_client_port - the port at which the clients will connect
+zookeeper_client_port: 2181
+
+# zookeeper_max_client_conns - the max number of client connections to zookeeper
+zookeeper_max_client_conns: 60
+
+## Cluster Settings ##
+
+# zookeeper dns example: <prefix><instance_number>.<domain>
+# zookeeper_dns_prefix - The prefix for the zookeeper instance DNS name before the instance number
+zookeeper_dns_prefix: zookeeper
+
+# zookeeper_dns_domain - The domain for the zookeeper instance DNS
+zookeeper_dns_domain: somedomain.com
+
+# zookeeper_dns_list - The list of all the zookeeper instance DNS names in the cluster
+zookeeper_dns_list:
+
+

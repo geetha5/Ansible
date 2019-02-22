@@ -1,0 +1,6 @@
+---
+
+- name: Install AppDynamics Machine Agent
+  yum:
+    name: /root/installers/{{ appd_machine_agent_rpm_name }}
+    state: present

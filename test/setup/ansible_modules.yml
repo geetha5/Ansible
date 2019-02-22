@@ -1,0 +1,11 @@
+---
+
+- name: ansible module install
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/setup/ansible_modules_vars.yml
+
+  roles:
+    - ansible_module

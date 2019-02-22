@@ -1,0 +1,20 @@
+{
+    "api.version": "v1",
+    "sources": [
+        {% for key, value in sumologic_sources.iteritems() %}
+        {
+            "automaticDateParsing": {{ (value.automaticDateParsing | default('true')) }},
+            "sourceType": "{{ (value.sourceType | default('LocalFile')) }}",
+            "hostName": "{{ aws_hostname }}",
+            "name": "{{ value.name }}",
+            "category": "{{ value.category }}",
+            "multilineProcessingEnabled": {{ (value.multilineProcessingEnabled | default('true')) }},
+            "pathExpression": "{{ value.pathExpression }}",
+            "timeZone": "{{ (value.timeZone | default('UTC')) }}",
+            "forceTimeZone": {{ (value.forceTimeZone | default('true')) }},
+            "useAutolineMatching": {{ (value.useautolineMatching | default('true')) }}
+        }{% if not loop.last %},{% endif %}
+
+        {% endfor %}
+    ]
+}

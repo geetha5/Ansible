@@ -1,0 +1,12 @@
+---
+
+- name: Install Sumologic RPM
+  yum:
+    name: "/root/installers/{{ sumologic_rpm_name }}"
+    state: present
+
+- name: Start Sumologic at Boot
+  service:
+    name: collector
+    enabled: yes
+    state: started

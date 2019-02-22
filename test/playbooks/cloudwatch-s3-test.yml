@@ -1,0 +1,12 @@
+---
+
+- name: Cloudwatch S3 Test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/cloudwatch-s3-test.yml
+
+  roles:
+    - base
+    - cloudwatch_agent

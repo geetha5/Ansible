@@ -1,0 +1,18 @@
+---
+
+# cw_alarm_enable_monitoring: to set up monitoring or not
+cw_alarm_enable_monitoring: no
+# cw_alarm_script: the full path of the instance alarm create script
+cw_alarm_script: /root/ansible_scripts/aws/instance_cloudwatch_alarms.py
+# cw_alarm_config_bucket: the bucket for the alarm config
+cw_alarm_config_bucket: none
+# cw_alarm_config_key: the s3 key for the alarm config
+cw_alarm_config_key: none
+# cw_alarm_output_bucket: the bucket for output alarm files
+cw_alarm_output_bucket: none
+# cw_alarm_output_key_prefix: the s3 key prefix for the output alarm files
+cw_alarm_output_key_prefix: none
+# cw_alarm_output_bucket_encrypted: if the output bucket is encrypted
+cw_alarm_output_bucket_encrypted: "no"
+# cw_alarm_output_key_id: the key id for the output bucket encryption
+cw_alarm_output_key_id: none

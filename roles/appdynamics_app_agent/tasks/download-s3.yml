@@ -1,0 +1,23 @@
+---
+
+- name: Set AppDynamics AppServer Agent S3 Bucket
+  set_fact:
+    appd_app_agent_s3_bucket: "{{ appd_app_agent_zip_url | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+
+- name: Set AppDynamics AppServer Agent S3 Key
+  set_fact:
+    appd_app_agent_s3_key: "{{ appd_app_agent_zip_url | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)\\/.*$', '\\1') }}"
+
+- name: Get AppDynamics AppServer Agent RPM - S3
+  aws_s3:
+    bucket: "{{ appd_app_agent_s3_bucket }}"
+    object: "{{ appd_app_agent_s3_key }}/{{ appd_app_agent_archive_name }}"
+    dest: "/root/installers/{{ appd_app_agent_archive_name }}"
+    mode: get
+
+- name: AppDynamics AppServer Agent Correct Ownership
+  file: 
+    path: "/root/installers/{{ appd_app_agent_archive_name }}"
+    owner: root
+    group: root
+    mode: 0744

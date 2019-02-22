@@ -1,0 +1,28 @@
+---
+
+- name: Add Hostname to /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    state: present
+    insertbefore: BOF
+    line: "{{ ansible_ec2_local_ipv4 }} {{ aws_hostname }} localhost"
+
+- name: Ensure Kafka Log Dir Exists
+  file:
+    state: directory
+    path: "{{ kafka_log_dirs }}"
+    owner: kafka
+    group: kafka
+    mode: 0770
+
+- name: Kafka Standalone DNS Route53
+  route53:
+    zone: "{{ kafka_dns_domain }}"
+    record: "{{ kafka_dns_name }}"
+    ttl: 300
+    type: A
+    state: present
+    value: "{{ ansible_ec2_local_ipv4 }}"
+    private_zone: yes
+    overwrite: yes
+

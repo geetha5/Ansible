@@ -1,0 +1,5 @@
+---
+
+- name: Download nexus Artifact(s)
+  include_tasks: "download.yml"
+  with_dict: "{{ nexus_artifacts }}"

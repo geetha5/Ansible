@@ -1,0 +1,22 @@
+---
+
+- name: Set AppDynamics Machine Agent Url Base
+  set_fact:
+    appd_machine_agent_rpm_url: "{{ appd_machine_agent_rpm_url | regex_replace('^(.*)\\/.*$', '\\1') }}"
+
+- name: Install wget
+  yum:
+    name: wget
+    state: present
+
+- name: Get AppDynamics Machine Agent RPM - Web
+  get_url:
+    url: "{{ appd_machine_agent_rpm_url }}&wget=true"
+    dest: "/root/installers/{{ appd_machine_agent_rpm_name }}"
+
+- name: AppDynamics Machine Agent Correct Ownership
+  file: 
+    path: "/root/installers/{{ appd_machine_agent_rpm_name }}"
+    owner: root
+    group: root
+    mode: 0744

@@ -1,0 +1,7 @@
+---
+
+- name: Install Supervisor
+  include_tasks: install.yml
+
+- name: Configure Supervisor
+  include_tasks: config.yml

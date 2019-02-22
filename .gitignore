@@ -1,0 +1,10 @@
+.vscode
+.testConfig.json
+.vagrant
+.gradletasknamecache
+.gradle
+build/
+temp/
+gradle.properties
+.idea
+ansible.iml

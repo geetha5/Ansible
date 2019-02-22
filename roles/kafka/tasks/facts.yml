@@ -1,0 +1,12 @@
+---
+
+- name: Kafka Common Facts
+  include_tasks: facts/common.yml
+
+- name: Kafka Standalone Facts
+  include_tasks: facts/standalone.yml
+  when: kafka_cluster_type == "standalone
+
+- name: Kafka Clustered Facts
+  include_tasks: facts/cluster.yml
+  when: kafka_cluster_type == "cluster"

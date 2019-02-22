@@ -1,0 +1,12 @@
+---
+
+- name: Nexus Artifact Fixed Snapshot test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+        - /vagrant/test/vars/nexus_artifact-snapshot-test.yml
+
+  roles:
+    - base
+    - nexus_artifact

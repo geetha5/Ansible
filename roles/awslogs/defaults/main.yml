@@ -1,0 +1,13 @@
+---
+
+# the log-group-prefix
+awslogs_log_group_prefix: ansible-test
+
+# to use gzip
+awslogs_use_gzip: true
+
+# awslogs_sources - a hash with entries for each log to collect
+# awslogs_sources:
+#   <log_type_1>:
+#     datetime_format: <logfile_datatime_format>
+#     file: <log_file_path

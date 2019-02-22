@@ -1,0 +1,5 @@
+---
+
+- name: Set JDK RPM Name
+  set_fact:
+    jdk_rpm_name: "{{ jdk_rpm_url | regex_replace('^.*\\/(.*)$', '\\1') }}"

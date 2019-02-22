@@ -1,0 +1,17 @@
+---
+
+- name: PHP Info Page
+  template:
+    src: info.php
+    dest: "{{ php_info_page_loc }}"
+    mode: 0774
+  when: php_create_info_page
+
+- name: PHP FPM config
+  template:
+    src: php-fpm.www.conf
+    dest: /etc/php-fpm.d/www.conf
+    owner: nginx
+    group: nginx
+    mode: 0664
+  notify: Restart PHP-FPM

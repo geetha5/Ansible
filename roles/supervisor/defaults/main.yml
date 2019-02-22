@@ -1,0 +1,10 @@
+---
+
+# supervisor_package_state - the state of the supervisor package can be: present, latest, version
+supervisor_package_state: present
+
+# supervisor_package_version - this should be provided is the supervisor_package_state is version
+supervisor_package_version: none
+
+# supervisor_password_param_name - the parameter store parameter name for the supervisor password
+supervisor_password_param_name: dev.supervisor.password

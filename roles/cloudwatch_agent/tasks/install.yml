@@ -1,0 +1,26 @@
+---
+
+- name: Create Cloudwatch Agent Unarchive Directory
+  file:
+    path: "/root/installers/cloudwatch_agent"
+    owner: root
+    group: root
+    state: directory
+
+- name: Unpack Cloudwatch Agent
+  unarchive:
+    src: "/root/installers/cloudwatch_agent.zip"
+    dest: "/root/installers/cloudwatch_agent"
+    owner: root
+    group: root
+
+- name: Check for Installed Cloudwatch Agent
+  stat:
+    path: "{{ cloudwatch_agent_install_dir }}"
+  register: installed_cw_agent
+
+- name: Run Cloudwatch Agent Installer if Not Installed
+  shell: "./install.sh"
+  args:
+    chdir: "/root/installers/cloudwatch_agent/"
+  when: installed_cw_agent.stat.exists == False

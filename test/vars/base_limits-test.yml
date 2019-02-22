@@ -1,0 +1,13 @@
+---
+
+base_os_limits:
+  file_soft_limit:
+    domain: "*"
+    type: "soft"
+    item: "nofile"
+    value: "9999"
+  file_hard_limit:
+    domain: "*"
+    type: "hard"
+    item: "nofile"
+    value: "9999"

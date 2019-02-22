@@ -1,0 +1,24 @@
+---
+
+- name: Get Ec2 Cloudwatch Agent download location
+  set_fact:
+    cloudwatch_agent_url_type: "{{ cloudwatch_agent_url | regex_replace('(.*)://.*', '\\1') }}"
+
+- name: Download - Web
+  include_tasks: download-web.yml
+  when: (cloudwatch_agent_url_type == "http" or
+        cloudwatch_agent_url_type == "https") and
+        cloudwatch_agent_enabled
+
+- name: Download - S3
+  include_tasks: download-s3.yml
+  when: cloudwatch_agent_url_type == "s3" and
+        cloudwatch_agent_enabled
+
+- name: Install
+  include_tasks: install.yml
+  when: cloudwatch_agent_enabled
+
+- name: Config.yml
+  include_tasks: config.yml
+  when: cloudwatch_agent_enabled

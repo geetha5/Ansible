@@ -1,0 +1,9 @@
+---
+
+- name: Get Cloudwatch Agent - HTTP(s)
+  get_url:
+    url: "{{ cloudwatch_agent_url }}"
+    dest: "/root/installers/cloudwatch_agent.zip"
+    owner: root
+    group: root
+    mode: 0744

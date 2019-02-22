@@ -1,0 +1,21 @@
+---
+
+- name: Check For /etc/init.d/appdynamics-machine-agent
+  shell: "ls /etc/init.d | grep appdynamics-machine-agent"
+  register: appdynamics-machine-agent_init_check
+  ignore_errors: yes
+
+- name: Add Environmental Variables
+  template:
+    src: controller-info.xml.j2
+    dest: /opt/appdynamics/machine-agent/conf/controller-info.xml
+    owner: root
+    group: root
+    mode: u=rwx,g=r,o=r
+  register: appdynamics-machine-agent_env_variables
+  tags: [appdynamics-machine-agent, config]
+
+- name: Start AppDynamics Machine Agent
+  service:
+    name: appdynamics-machine-agent
+    state: started

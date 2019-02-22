@@ -1,0 +1,20 @@
+---
+
+- name: Get TrendMicro Install Script - Hosted
+  get_url:
+    url: "{{ trendmicro_url }}"
+    checksum: "{{ trendmicro_checksum_algo }}:{{ trendmicro_checksum }}"
+    dest: /root/installers/DownloadInstallAgentPackage
+    validate_certs: no
+  when: trendmicro_provider == "hosted"
+
+- name: Set TrendMicro RPM Name
+  set_fact:
+    trendmicro_rpm_name: "{{ trendmicro_url | regex_replace('^.*\\/(.*)$', '\\1') }}"
+  when: trendmicro_provider == "saas"
+
+- name: Get TrendMicro RPM - SaaS
+  get_url:
+    url: "{{ trendmicro_url }}"
+    dest: "/root/installers/{{ trendmicro_rpm_name }}"
+  when: trendmicro_provider == "saas"

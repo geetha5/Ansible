@@ -1,0 +1,75 @@
+---
+
+# appd_machine_agent_rpm_url - This is the url to pull the AppDynamics Machine Agent RPM package from, this can be an http(s) or s3 url
+appd_machine_agent_rpm_url: s3://wex-mobile-devops/installers/appdynamics-machine-agent/appdynamics-machine-agent-4.3.8.8-1.x86_64.rpm
+
+# appd_machine_agent_ctrl_hostname
+#    This is the host name or the IP address of the AppDynamics Controller (e.g., 192.168.1.22 or myhost or
+#    myhost.abc.com). This is the same host that you use to access the AppDynamics browser-based User interface. This can
+#    be overridden with the environment variable 'CONTROLLER_HOST_NAME' or the system property
+#    '-Dappdynamics.controller.hostName'
+appd_machine_agent_ctrl_hostname: prod.appd.wex-tools.com
+
+# appd_machine_agent_ctrl_port
+#    This is the http(s) port of the AppDynamics Controller. If 'controller-ssl-enabled' (below) is set to true, you
+#    must specify the HTTPS port of the Controller; otherwise, specify the HTTP port. The default values are 8090 for
+#    HTTP and 8181 for HTTPS. This is the same port that you use to access the AppDynamics browser-based User interface.
+#    This can be overridden with the environment variable 'APPDYNAMICS_CONTROLLER_PORT' or the system property
+#    '-Dappdynamics.controller.port'
+appd_machine_agent_ctrl_port: 443
+
+# appd_machine_agent_ctrl_ssl -
+#    This specifies if the AppDynamics agent should use SSL (HTTPS) to connect to the Controller. If you set this to
+#    true, the controller port property above should be set to the HTTPS port of the Controller. This can be overridden
+#    with the environment variable 'APPDYNAMICS_CONTROLLER_SSL_ENABLED' or the system property
+#    '-Dappdynamics.controller.ssl.enabled'
+appd_machine_agent_ctrl_ssl: true
+
+# appd_machine_agent_ctrl_host_id - Optional unique name for this machine
+#    The Machine Agent uses the Java API to get the host name of the agent. The results from the API can be
+#    inconsistent, and the same JVM can sometimes return a different value for the same machine each time the machine
+#    agent is restarted. It is recommended to set this field in the following scenarios:
+#
+#    1) The machine host name is not constant
+#    2) You prefer to use a specific name in the UI
+#    3) The machine has both a machine agent and app agents on it.
+#
+#    This can be overridden with the environment variable 'APPDYNAMICS_AGENT_UNIQUE_HOST_ID' or the system property
+#    '-Dappdynamics.agent.uniqueHostId'
+appd_machine_agent_ctrl_host_id: "{{ aws_hostname }}"
+
+# appd_machine_agent_ctrl_access_key
+#    This key is generated at installation time and can be found by viewing the license information in the
+#    controller settings. This can be overridden with the environment variable 'APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY' or
+#    the system property '-Dappdynamics.agent.accountAccessKey'
+appd_machine_agent_ctrl_access_key: replace_me
+
+
+# appd_machine_agent_ctrl_account_name
+#
+#    If the AppDynamics Controller is running in multi-tenant mode or you are using the AppDynamics SaaS Controller,
+#    you must specify the account name for this agent to authenticate with the controller. If you are running in
+#    single-tenant mode (the default) there is no need to configure this value. This can be overridden with the
+#    environment variable 'APPDYNAMICS_AGENT_ACCOUNT_NAME' or the system property '-Dappdynamics.agent.accountName'
+appd_machine_agent_ctrl_account_name: customer1
+
+#    appd_machine_agent_ctrl_sim_enabled
+#
+#    If this agent is licensed for Server Monitoring, set this flag to 'true' to enable Server Monitoring expanded
+#    metrics. This can be overridden with the environment variable 'APPDYNAMICS_SIM_ENABLED' or the system property
+#    '-Dappdynamics.sim.enabled'
+appd_machine_agent_ctrl_sim_enabled: "true"
+
+#    appd_machine_agent_ctrl_machine_path
+#
+#    This value is used to create the hierarchy infrastructure view in the UI for this machine. Each hierarchy level
+#    should be separated with a vertical bar ("|"). For example, if this machine belongs to "DataRack1" and it is located
+#    in "Virginia Data Center", then the machine path could be set to "Virginia Data Center|DataRack1|Machine1" and the
+#    UI will display it in that hierarchy ("Virginia Data Center|DataRack1"). The last element of the path indicates the
+#    server name (e.g., "Machine1") and appears as the name on the servers list in the UI. This can be overridden with
+#    the environment variable 'APPDYNAMICS_MACHINE_HIERARCHY_PATH' or the system property
+#    '-Dappdynamics.machine.agent.hierarchyPath'.
+#
+#    Note: The number of characters up to but not including the last vertical bar must not exceed 95.
+#          e.g.  NA Fleet|web|prod|us-east-1|aue1deuceN000P
+appd_machine_agent_ctrl_machine_path: 'LoB|team|env|Region|VPC|hostname'

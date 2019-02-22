@@ -1,0 +1,6 @@
+---
+
+- name: Set AppDynamics Machine Agent RPM Name
+  set_fact:
+      appd_machine_agent_rpm_name: "{{ appd_machine_agent_rpm_url | regex_replace('^.*\\/(.*)$', '\\1') }}"
+

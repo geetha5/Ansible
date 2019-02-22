@@ -1,0 +1,13 @@
+---
+
+- name: zookeeper cluster test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/zookeeper-cluster-test.yml
+
+  roles:
+    - base
+    - jdk
+    - zookeeper

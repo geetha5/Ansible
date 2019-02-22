@@ -1,0 +1,21 @@
+---
+
+- name: Make Kafka-HC Dir
+  file:
+    path: "/opt/kafka-health-check"
+    state: directory
+    owner: root
+    group: root
+
+- name: Unpack Kafka-HC
+  unarchive:
+    src: "/root/installers/{{ kafka_hc_archive_name }}"
+    dest: "/opt/kafka-health-check"
+    owner: root
+    group: root
+
+- name: Link Kafka-HC
+  file:
+    src: "/opt/kafka-health-check/kafka-health-check"
+    dest: "/usr/bin/kafka-health-check"
+    state: link

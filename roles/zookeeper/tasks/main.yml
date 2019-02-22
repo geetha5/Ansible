@@ -1,0 +1,23 @@
+---
+
+- name: Get Zookeeper download location
+  set_fact:
+    zookeeper_url_type: "{{ zookeeper_package_url | regex_replace('(.*)://.*', '\\1') }}"
+
+- name: Set Common Zookeeper Facts
+  include_tasks: facts.yml
+
+- name: Zookeeper Web Download
+  include_tasks: download-web.yml
+  when: (zookeeper_url_type == "http") or
+        (zookeeper_url_type == "https")
+
+- name: Zookeeper S3 Download
+  include_tasks: download-s3.yml
+  when: zookeeper_url_type == "s3"
+
+- name: Zookeeper Install
+  include_tasks: install.yml
+
+- name: Zookeeper Config and Run
+  include_tasks: config.yml

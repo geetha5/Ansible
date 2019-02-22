@@ -1,0 +1,23 @@
+---
+
+- name: Set Zookeeper S3 Bucket
+  set_fact:
+    zookeeper_s3_bucket: "{{ zookeeper_package_url | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+
+- name: Set Zookeeper S3 Key
+  set_fact:
+    zookeeper_s3_key: "{{ zookeeper_package_url | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)\\/.*$', '\\1') }}"
+
+- name: Get Zookeeper Package - S3
+  aws_s3:
+    bucket: "{{ zookeeper_s3_bucket }}"
+    object: "{{ zookeeper_s3_key }}/{{ zookeeper_archive_name }}"
+    dest: "/root/installers/{{ zookeeper_archive_name }}"
+    mode: get
+
+- name: Correct Ownership
+  file:
+    path: "/root/installers/{{ zookeeper_archive_name }}"
+    owner: root
+    group: root
+    mode: 0744

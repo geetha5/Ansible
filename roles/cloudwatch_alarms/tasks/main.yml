@@ -1,0 +1,13 @@
+---
+
+- name: Run instance alarm creation script
+  shell: |
+    python {{ cw_alarm_script }} \
+    --environment {{ host_environment }} \
+    --config-bucket {{ cw_alarm_config_bucket }} \
+    --config-key {{ cw_alarm_config_key }} \
+    --output-bucket {{ cw_alarm_output_bucket }} \
+    --output-key-prefix {{ cw_alarm_output_key_prefix }} \
+    --output-bucket-encrypted {{ cw_alarm_output_bucket_encrypted }} \
+    --output-key-id {{ cw_alarm_output_key_id }}
+  when: cw_alarm_enable_monitoring

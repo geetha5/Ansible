@@ -1,0 +1,8 @@
+[program:kafka]
+command=/opt/{{ kafka_dir_name }}/bin/kafka-server-start.sh /opt/{{ kafka_dir_name }}/config/server.properties
+autostart=true
+autorestart=true
+startsecs=10
+stopsignal=INT
+user=kafka
+stopwaitsecs=120

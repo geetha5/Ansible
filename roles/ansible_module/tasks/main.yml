@@ -1,0 +1,8 @@
+---
+
+- name: Setup Ansible Module Directories
+  include_tasks: "setup.yml"
+
+- name: Install Ansible Modules
+  include_tasks: "install.yml"
+  with_dict: "{{ ansible_modules }}"

@@ -1,0 +1,9 @@
+---
+
+- name: Add Environmental Variables
+  template:
+      src: controller-info.xml.j2
+      dest: /opt/appdynamics/AppServerAgent/conf/controller-info.xml
+      owner: root
+      group: root
+      mode: u=rwx,g=r,o=r

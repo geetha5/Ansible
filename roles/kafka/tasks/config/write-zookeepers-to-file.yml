@@ -1,0 +1,17 @@
+---
+
+- name: Create /var/kafka
+  file:
+    path: /var/kafka
+    owner: kafka
+    group: kafka
+    state: directory
+    mode: 0664
+
+- name: Place /var/kafka/zooekeepers File
+  template:
+    src: zookeepers.j2
+    dest: /var/kafka/zookeepers
+    owner: kafka
+    group: kafka
+    mode: 0664

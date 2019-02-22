@@ -1,0 +1,16 @@
+---
+
+appd_app_agent_zip_url: s3://wex-mobile-devops/installers/appdynamics-appserver-agent/AppServerAgent-4.3.8.10.zip
+
+appd_app_agent_hostname: prod.appd.wex-tools.com
+appd_app_agent_port: 443
+appd_app_agent_ssl: true
+appd_app_agent_simple_hostname: true
+
+appd_app_agent_access_key: replace_me
+appd_app_agent_account_name: customer1
+
+appd_app_agent_application_name: ansible testing
+appd_app_agent_tier_name: test
+appd_app_agent_node_name: "{{ aws_hostname }}"
+appd_app_agent_runtime_dir: /var/log/

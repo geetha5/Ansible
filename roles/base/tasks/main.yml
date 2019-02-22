@@ -1,0 +1,19 @@
+---
+
+- name: Gather Base Facts
+  import_tasks: "facts.yml"
+
+- name: Create Base Directories
+  import_tasks: "directories.yml"
+
+- name: Set Hostname and Tags
+  import_tasks: "hostname.yml"
+
+- name: Set /etc/security/limits.conf
+  import_tasks: "limits.yml"
+
+- name: Install useful Pip packages for Scripts
+  import_tasks: "pip-util.yml"
+
+#- name: Stop Syncing with Amazon NTP Servers
+#  import_tasks: "ntp.yml"

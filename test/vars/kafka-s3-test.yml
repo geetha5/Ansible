@@ -1,0 +1,16 @@
+---
+
+# zookeeper settings
+zookeeper_package_url: s3://wex-mobile-devops/installers/zookeeper/zookeeper-3.4.10.tar.gz
+
+# kafka settings
+kafka_package_url: s3://wex-mobile-devops/installers/kafka/kafka_2.11-1.0.0.tgz
+
+# jdk settings
+jdk_rpm_url: s3://wex-mobile-devops/installers/jdk/jdk-8u151-linux-x64.rpm
+
+# kafka test topic
+kafka_topics:
+  test:
+    replication_factor: 1
+    partitions: 1

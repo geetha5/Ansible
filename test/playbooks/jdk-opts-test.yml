@@ -1,0 +1,14 @@
+---
+
+- name: jdk (s3) role test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars:
+    java_opts: -Xms2048m -Xmx2048m
+  vars_files:
+    - /vagrant/test/vars/jdk-s3-test.yml
+
+  roles:
+    - base
+    - jdk

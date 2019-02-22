@@ -1,0 +1,11 @@
+---
+
+- name: awslogs role test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/awslogs-test.yml
+
+  roles:
+    - awslogs

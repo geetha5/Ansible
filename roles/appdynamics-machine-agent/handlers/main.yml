@@ -1,0 +1,6 @@
+---
+
+- name: Restart AppDynamics Machine Agent
+  service:
+    name: appdynamics-machine-agent
+    state: restarted

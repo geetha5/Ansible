@@ -1,0 +1,23 @@
+---
+
+- name: Set Kafka-HC S3 Bucket
+  set_fact:
+    kafka_hc_s3_bucket: "{{ kafka_hc_package_url | regex_replace('s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+
+- name: Set Kafka-HC S3 Key
+  set_fact:
+    kafka_s3_key: "{{ kafka_hc_package_url | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)\\/.*$', '\\1') }}"
+
+- name: Get Kafak-HC Package -S3
+ aws_s3:
+    bucket: "{{ kafka_hc_s3_bucket }}"
+    object: "{{ kafka_hc_s3_key }}/{{ kafka_hc_archive_name }}"
+    dest: "/root/installers/{{ kafka_hc_archive_name }}"
+    mode: get
+
+- name: Correct Ownership
+  file:
+    path: "/root/installers/{{ kafka_hc_archive_name }}"
+    owner: root
+    group: root
+    mode: 0744

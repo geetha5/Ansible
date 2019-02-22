@@ -1,0 +1,16 @@
+---
+
+sumologic_rpm_url: s3://wex-mobile-devops/installers/sumologic/SumoCollector-19.209-23.x86_64.rpm
+sumologic_access_id_param: dev.sumologic.accessid
+sumologic_access_key_param: dev.sumologic.accesskey
+sumologic_client_name: none-test-dev
+
+sumologic_sources:
+  bootstrap_source:
+    name: bootstrap
+    category: "{{ owning_group }}/{{ ansible_ec2_placement_region }}/{{ host_purpose }}/{{ host_environment }}/boostrap"
+    pathExpression: "/var/log/bootstrap.log"
+  ansible_source:
+    name: ansible
+    category: "{{ owning_group }}/{{ ansible_ec2_placement_region }}/{{ host_purpose }}/{{ host_environment }}/ansible"
+    pathExpression: "/var/log/ansible.log"

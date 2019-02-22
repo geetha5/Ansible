@@ -1,0 +1,7 @@
+---
+
+ansible_modules:
+  ssm_parameter_store:
+    url: s3://wex-mobile-devops/ansible_modules/ssm_parameter_store-1.2.1.tar.gz
+    create_unarchive_dir: "no"
+    unarchived_dir: ssm_parameter_store-1.2.1

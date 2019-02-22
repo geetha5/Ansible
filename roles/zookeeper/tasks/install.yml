@@ -1,0 +1,51 @@
+---
+
+- name: Create Zookeeper Group
+  group:
+    name: zookeeper
+    state: present
+
+- name: Create Zookeeper User
+  user:
+    name: zookeeper
+    group: zookeeper
+    state: present
+    shell: "/sbin/nologin"
+
+- name: Unpack Zookeeper
+  unarchive:
+    src: "/root/installers/{{ zookeeper_archive_name }}"
+    dest: "/opt"
+    owner: zookeeper
+    group: zookeeper
+
+- name: Link Zookeeper to Zookeeper-active
+  file:
+    src: "/opt/{{ zookeeper_dir_name }}"
+    dest: /opt/zookeeper-active
+    state: link
+    owner: root
+    group: root
+
+- name: Place ZooKeeper Init
+  template:
+    src: zookeeper.j2
+    dest: "/etc/init.d/zookeeper"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Make Zookeeper data dir
+  file:
+    path: "{{ zookeeper_data_dir }}"
+    owner: zookeeper
+    group: zookeeper
+    state: directory
+
+- name: Make Zookeeper Log Dir
+  file:
+    path: "{{ zookeeper_log_dir }}"
+    owner: zookeeper
+    group: zookeeper
+    state: directory
+

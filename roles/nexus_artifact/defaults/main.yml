@@ -1,0 +1,15 @@
+---
+
+# nexus_url - this is the base url for the nexus server
+nexus_base_url: http://nexus.int.wrightexpress.com/nexus/service/local
+
+# nexus_artifacts - is a list of hashes in the following format
+# nexus_artifacts:
+#   <artifact_name>:
+#     version_env_var: <string> - the ENV varible name that contains the version to deploy
+#     group: <string> - the group for the artifact as com.wex.<etc ...>
+#     artifact: <string> - the artifact name for nexus
+#     downloaded_location: <path and filename> - The place to download the artifact to on disk
+#   <artifact_name_2>:
+#     ...
+nexus_artifacts:

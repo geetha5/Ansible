@@ -1,0 +1,15 @@
+---
+
+# zookeeper settings
+zookeeper_package_url: s3://wex-mobile-devops/installers/zookeeper/zookeeper-3.4.10.tar.gz
+zookeeper_use_supervisor: yes
+
+# kafka settings
+kafka_package_url: s3://wex-mobile-devops/installers/kafka/kafka_2.11-1.0.0.tgz
+kafka_use_supervisor: yes
+
+kafka_dns_name: kafka-test.dev.intwexmobile.net
+kafka_dns_domain: dev.intwexmobile.net
+
+# jdk settings
+jdk_rpm_url: s3://wex-mobile-devops/installers/jdk/jdk-8u151-linux-x64.rpm

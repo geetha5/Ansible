@@ -1,0 +1,8 @@
+---
+
+# ntp_servers - This is a list of NTP servers to put into the config
+ntp_servers: 
+  - 0.amazon.pool.ntp.org
+  - 1.amazon.pool.ntp.org
+  - 2.amazon.pool.ntp.org
+  - 3.amazon.pool.ntp.org

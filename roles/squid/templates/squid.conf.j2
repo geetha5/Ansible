@@ -1,0 +1,25 @@
+visible_hostname squid
+
+#Handling HTTP requests
+http_port 3129 intercept
+{% for http_allowed in squid_http_allowed %}
+acl allowed_http_sites dstdomain {{ http_allowed }}
+{% endfor %}
+http_access allow allowed_http_sites
+
+#Handling HTTPS requests
+https_port 3130 cert=/etc/squid/ssl/squid.pem ssl-bump intercept
+acl SSL_port port 443
+http_access allow SSL_port
+{% for https_allowed in squid_https_allowed %}
+acl allowed_https_sites ssl::server_name {{ https_allowed }}
+{% endfor %}
+acl step1 at_step SslBump1
+acl step2 at_step SslBump2
+acl step3 at_step SslBump3
+ssl_bump peek step1 all
+ssl_bump peek step2 allowed_https_sites
+ssl_bump splice step3 allowed_https_sites
+ssl_bump terminate step2 all
+
+http_access deny all

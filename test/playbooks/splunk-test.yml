@@ -1,0 +1,12 @@
+---
+
+- name: splunk role (web) test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/splunk-http-test.yml
+
+  roles:
+    - base
+    - splunk

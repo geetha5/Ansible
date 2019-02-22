@@ -1,0 +1,7 @@
+---
+
+- name: Install awslogs package
+  yum:
+    name: awslogs
+    state: present
+

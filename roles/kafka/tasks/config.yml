@@ -1,0 +1,60 @@
+---
+
+- name: Standalone Specific Config
+  include_tasks: config/standalone.yml
+  when: kafka_cluster_type == "standalone"
+
+- name: Cluster Specific Config
+  include_tasks: config/cluster.yml
+  when: kafka_cluster_type == "cluster"
+
+- name: Create Kafka Log Dir
+  file:
+    path: "/opt/{{ kafka_dir_name }}/logs"
+    owner: kafka
+    group: kafka
+    state: directory
+
+- name: Link Kafka Logs
+  file:
+    src: "/opt/{{ kafka_dir_name }}/logs"
+    dest: /var/log/kafka
+    owner: kafka
+    group: kafka
+    state: link
+
+- name: Kafka Supervisor Config
+  template:
+    src: supervisor.conf.j2
+    dest: /etc/supervisor/conf.d/kafka.conf
+    owner: root
+    group: root
+    mode: 0775
+  register: kafka_supervisor_config
+  when: kafka_use_supervisor
+
+- name: Write Zookeepers File
+  include_tasks: config/write-zookeepers-to-file.yml
+
+- name: Kafka Supervisor Reread
+  shell: /usr/local/bin/supervisorctl reread
+  when: kafka_supervisor_config.changed and
+        kafka_use_supervisor
+
+- name: Kafka Supervisor Update
+  shell: /usr/local/bin/supervisorctl update
+  when: kafka_supervisor_config.changed and
+        kafka_use_supervisor
+
+- name: Kafka Config
+  template:
+    src: server.properties.j2
+    dest: "/opt/{{ kafka_dir_name }}/config/server.properties"
+    owner: kafka
+    group: kafka
+    mode: 0644
+  notify:
+    - Restart Kafka
+
+- name: Kafka Setup Flush Handlers
+  meta: flush_handlers

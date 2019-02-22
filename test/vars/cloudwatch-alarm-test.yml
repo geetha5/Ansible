@@ -1,0 +1,10 @@
+---
+
+cloudwatch_agent_url: s3://wex-mobile-devops/installers/cloudwatch-agent/AmazonCloudWatchAgent.zip
+cloudwatch_config_url: s3://wex-mobile-devops/config/dev/cloudwatch_agent_config/default.json
+
+cw_alarm_enable_monitoring: yes
+cw_alarm_config_bucket: wex-mobile-devops
+cw_alarm_config_key: config/dev/cloudwatch_inst_alarm_config/ansible-test.json
+cw_alarm_output_bucket: wex-mobile-devops-dev
+cw_alarm_output_key_prefix: instance_alarms

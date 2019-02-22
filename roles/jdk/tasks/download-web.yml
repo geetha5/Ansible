@@ -1,0 +1,17 @@
+---
+
+- name: Set JDK url Base
+  set_fact:
+    jdk_url_base: "{{ jdk_rpm_url | regex_replace('^(.*)\\/.*$', '\\1') }}"
+
+- name: Get JDK RPM - Oracle Site
+  get_url:
+    url: "{{ jdk_url_base }}/{{ jdk_rpm_name }}"
+    validate_certs: no
+    headers:
+      Cookie: oraclelicense=accept-securebackup-cookie
+    dest: "/root/installers/{{ jdk_rpm_name }}"
+    owner: root
+    group: root
+    mode: 0744
+

@@ -1,0 +1,12 @@
+---
+
+- name: Restart Zookeeper
+  shell: |
+    if [[ -z /etc/supervisor/conf.d/zookeeper.conf ]]; then
+      echo "restarting zookeeper service"
+      service zookeeper restart
+    else
+      echo "restarting zookeeper via supervisor"
+      /usr/local/bin/supervisorctl restart zookeeper
+    fi
+

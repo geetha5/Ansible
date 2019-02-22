@@ -1,0 +1,117 @@
+---
+
+# General Facts
+- name: Get Module URL Type
+  set_fact:
+    module_url_type: "{{ item.value.url | regex_replace('^(.*)://.*', '\\1') }}"
+
+- name: Get Module Archive Name
+  set_fact:
+    module_archive_name: "{{ item.value.url | regex_replace('^.*\\/(.*)$', '\\1') }}"
+
+# facts for not creating a subfolder for unpacking
+- name: Set dest path without subdir
+  set_fact:
+    module_dest_path: "/root/ansible_modules"
+  when: item.value.create_unarchive_dir == "no"
+
+# facts for creating a subfolder for unpacking
+- name: Set dest path for subdir
+  set_fact:
+    module_dest_path: "/root/ansible_modules/{{ item.value.unarchive_dir }}"
+  when: item.value.create_unarchive_dir == "yes"
+
+# Set General unarchive dir
+- name: Set Unarchived path
+  set_fact:
+    module_unarchived_path: "/root/ansible_modules/{{ item.value.unarchived_dir }}"
+
+# S3 Facts for S3 download
+- name: Get Module S3 Bucket 
+  set_fact:
+    module_s3_bucket: "{{ item.value.url | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+  when: module_url_type == "s3"
+
+- name: Get Module S3 Key
+  set_fact:
+    module_s3_key: "{{ item.value.url | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)\\/.*$', '\\1') }}"
+  when: module_url_type == "s3"
+
+# S3 Module Download
+- name: Get Module Archive - S3
+  aws_s3:
+    bucket: "{{ module_s3_bucket }}"
+    object: "{{ module_s3_key }}/{{ module_archive_name }}"
+    dest: "/root/ansible_modules/{{ module_archive_name }}"
+    mode: get
+  when: module_url_type == "s3"
+
+- name: Correct Ownership
+  file: 
+    path: "/root/ansible_modules/{{ module_archive_name }}"
+    owner: root
+    group: root
+    mode: 0744
+  when: module_url_type == "s3"
+
+# Web Module Download
+- name: Get Module Archive - Web 
+  get_url:
+    url: "{{ item.value.url }}"
+    validate_certs: no
+    dest: "/root/ansible_modules/{{ module_archive_name }}"
+    owner: root
+    group: root
+    mode: 0755
+  when: (module_url_type == "http") or 
+        (module_url_type == "https")
+
+# Unpack the archive
+- name: Unarchive Ansible Module
+  unarchive:
+    src: "/root/ansible_modules/{{ module_archive_name }}"
+    dest: "{{ module_dest_path }}"
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0744
+
+# Find Library Files
+- name: Find Module Library Files
+  find:
+    path: "{{ module_unarchived_path }}/library"
+    patterns: '*.py'
+  register: find_result
+
+# Copy Library Files
+- name: Copy Module Library Files
+  copy:
+    src: "{{ library_file.path }}"
+    dest: "/usr/share/my_modules/{{ library_file.path | basename }}"
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0755
+  with_items: "{{ find_result.files }}"
+  loop_control:
+    loop_var: library_file
+
+# Find Lookup Files
+- name: Find Module Lookup Files
+  find:
+    path: "{{ module_unarchived_path }}/lookup"
+    patterns: '*.py'
+  register: find_result
+
+# Copy Lookup Files
+- name: Copy Module Lookup Files
+  copy:
+    src: "{{ lookup_file.path }}"
+    dest: "/usr/share/ansible/plugins/lookup/{{ lookup_file.path | basename }}"
+    remote_src: yes
+    owner: root
+    group: root
+    mode: 0755
+  with_items: "{{ find_result.files }}"
+  loop_control:
+    loop_var: lookup_file

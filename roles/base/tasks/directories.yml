@@ -1,0 +1,9 @@
+---
+
+- name: Ensure Installers Dir Exists
+  file:
+    path: /root/installers
+    owner: root
+    group: root
+    mode: 0744
+    state: directory

@@ -1,0 +1,77 @@
+---
+
+# Get from parameter store if set
+- name: Get Encrypted Param Store Value
+  shell: >
+    aws ssm get-parameter --name {{ item.value.value }} --with-decryption --query 'Parameter.Value' --output text
+    --region {{ ansible_ec2_placement_region }}
+  register: encrypted_param_store_query
+  when: (item.value.param_store == "yes") and
+        (item.value.encrypted == "yes")
+
+- name: Get Plain Param Store Value
+  shell: >
+    aws ssm get-parameter --name {{ item.value.value }} --query 'Parameter.Value' --output text
+    --region {{ ansible_ec2_placement_region }}
+  register: plain_param_store_query
+  when: (item.value.param_store == "yes") and
+        (item.value.encrypted == "no")
+
+# check if property exists
+- name: Check if Property exists
+  shell: >
+    cat {{ php_env_props_file }} | grep {{ item.value.prop_name }}=.*$
+  register: prop_check
+  ignore_errors: yes
+
+# write out property (doesn't exist)
+- name: Write out Plain Param Store Value
+  lineinfile:
+    path: "{{ php_env_props_file }}"
+    line: "{{ item.value.prop_name }}={{ plain_param_store_query.stdout }}"
+  when: (item.value.param_store == "yes") and
+        (item.value.encrypted == "no") and
+        (prop_check.rc != 0)
+
+- name: Write out Encrypted Param Store Value
+  lineinfile:
+    path: "{{ php_env_props_file }}"
+    line: "{{ item.value.prop_name }}={{ encrypted_param_store_query.stdout }}"
+  when: (item.value.param_store == "yes") and
+        (item.value.encrypted == "yes") and
+        (prop_check.rc != 0)
+
+- name: Write out Passed Value
+  lineinfile:
+    path: "{{ php_env_props_file }}"
+    line: "{{ item.value.prop_name }}={{ item.value.value }}"
+  when: (item.value.param_store == "no") and
+        (prop_check.rc != 0)
+
+
+# update property (already exists)
+- name: Update out Plain Param Store Value
+  lineinfile:
+    path: "{{ php_env_props_file }}"
+    line: "{{ item.value.prop_name }}={{ plain_param_store_query.stdout }}"
+    regexp: "{{ item.value.prop_name }}=.*$"
+  when: (item.value.param_store == "yes") and
+        (item.value.encrypted == "no") and
+        (prop_check.rc == 0)
+
+- name: Update out Encrypted Param Store Value
+  lineinfile:
+    path: "{{ php_env_props_file }}"
+    line: "{{ item.value.prop_name }}={{ encrypted_param_store_query.stdout }}"
+    regexp: "{{ item.value.prop_name }}=.*$"
+  when: (item.value.param_store == "yes") and
+        (item.value.encrypted == "yes") and
+        (prop_check.rc == 0)
+
+- name: Update out Passed Value
+  lineinfile:
+    path: "{{ php_env_props_file }}"
+    line: "{{ item.value.prop_name }}={{ item.value.value }}"
+    regexp: "{{ item.value.prop_name }}=.*$"
+  when: (item.value.param_store == "no") and
+        (prop_check.rc == 0)

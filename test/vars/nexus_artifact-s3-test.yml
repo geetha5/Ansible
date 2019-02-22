@@ -1,0 +1,8 @@
+---
+
+nexus_artifacts:
+  gasbuddy-auth-filter:
+    version_env_var: "APP_VERSION"
+    group: "com.wex.mobile"
+    artifact: "gasbuddy-auth-filter"
+    downloaded_location: "/root/app.jar"

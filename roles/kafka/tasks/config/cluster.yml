@@ -1,0 +1,80 @@
+---
+
+- name: Set AWS Hostname Fact (Kafka Broker Clustered)
+  set_fact:
+    aws_hostname: "aws-{{ host_purpose }}-{{ kafka_broker_id }}-{{ host_environment }}-{{ ansible_ec2_local_ipv4 | regex_replace('^(\\d+).(\\d+).(\\d+).(\\d+)$', '\\1_\\2_\\3_\\4') }}"
+
+- name: Set Hostname (Kafka Broker Clustered)
+  hostname:
+    name: "{{ aws_hostname }}"
+
+- name: Set Instance Name Tag (Kafka Broker Clustered)
+  ec2_tag:
+    region: "{{ ansible_ec2_placement_region }}"
+    resource: "{{ ansible_ec2_instance_id }}"
+    state: present
+    tags:
+      Name: "{{ aws_hostname }}"
+      Purpose: "{{ host_purpose }}"
+      Group: "{{ owning_group }}"
+      Environment: "{{ host_environment }}"
+      KafkaCluster: "{{ lookup('env', 'CLUSTER_NAME') }}"
+      BrokerId: "{{ kafka_broker_id }}"
+
+- name: Add Hostname to /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    state: present
+    insertbefore: BOF
+    line: "{{ ansible_ec2_local_ipv4 }} {{ aws_hostname }} localhost"
+
+- name: Attach Kafka Log Volume
+  shell: "python /root/ansible_scripts/aws/attach_ebs.py --vol-id {{ lookup('env', 'KAFKA_VOLUME_ID') }} --device /dev/xvdb"
+
+- name: Ensure Kafka Log Dir Exists
+  file:
+    state: directory
+    path: "{{ kafka_log_dirs }}"
+    owner: kafka
+    group: kafka
+    mode: 0660
+
+- name: Mount The Kafka Log Volume
+  shell: "/root/ansible_scripts/ec2/mount_volume.sh /dev/xvdb {{ kafka_log_dirs }}"
+
+- name: Correct Ownership on kafka Log Dir
+  file:
+    state: directory
+    path: "{{ kafka_log_dirs }}"
+    owner: kafka
+    group: kafka
+    mode: 0770
+    recurse: yes
+
+- name: Ensure There is No Lost & Found dir
+  file:
+    state: absent
+    path: "{{ kafka_log_dirs }}/lost+found"
+
+- name: Kafka Broker DNS Route53
+  route53:
+    zone: "{{ kafka_dns_domain }}"
+    record: "{{ kafka_broker_dns }}"
+    ttl: 300
+    type: A
+    state: present
+    value: "{{ ansible_ec2_local_ipv4 }}"
+    private_zone: yes
+    overwrite: yes
+
+- name: kafka Bootstrap DNS Route53
+  route53:
+    zone: "{{ kafka_dns_domain }}"
+    record: "{{ kafka_bootstrap_dns_name }}"
+    ttl: 300
+    type: A
+    state: present
+    value: "{{ ansible_ec2_local_ipv4 }}"
+    private_zone: yes
+    overwrite: yes
+  when: kafka_is_bootstrap_server

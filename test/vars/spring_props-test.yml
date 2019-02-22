@@ -1,0 +1,20 @@
+---
+
+spring_props_file: /root/app-config/spring.properties
+
+spring_props_properties:
+  test-prop:
+    prop_name: "encrypted.parm_store"
+    param_store: "yes"
+    encrypted: "yes"
+    value: dev.sumologic.accesskey
+  test-prop-2:
+    prop_name: "nonencrypted.parm_store"
+    param_store: "yes"
+    encrypted: "no"
+    value: dev.sumologic.accessid
+  test-prop-3:
+    prop_name: "passed.property"
+    param_store: "no"
+    encrypted: "no"
+    value: "test_value"

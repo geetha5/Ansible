@@ -1,0 +1,6 @@
+---
+
+- name: Install TrendMicro
+  yum:
+    name: /root/installers/{{ trendmicro_rpm_name }}
+    state: present

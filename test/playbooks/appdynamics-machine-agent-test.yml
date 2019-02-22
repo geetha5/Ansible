@@ -1,0 +1,12 @@
+---
+
+- name: AppDynamics Machine Agent role (web) test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/appdynamics-machine-agent-test.yml
+
+  roles:
+    - base
+    - appdynamics-machine-agent

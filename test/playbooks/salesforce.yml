@@ -1,0 +1,204 @@
+---
+
+- name: salesforce app provision master playbook
+  hosts: localhost
+  become: yes
+  become_user: root
+
+  roles:
+  - base
+  - splunk
+  - trendmicro
+  - nginx
+  - php
+
+  post_tasks:
+  - name: create dev instance dns
+    route53:
+        zone: "{{ dev_server_dns_domain }}"
+        record: "{{ dev_server_dns_name }}"
+        ttl: 300
+        type: A
+        state: present
+        value: "{{ ansible_ec2_public_ipv4 }}"
+        private_zone: no
+        overwrite: yes
+    when: dev_server_create_dns
+  vars:
+    # base variables
+    host_purpose: salesforce
+    host_environment: stage
+    owning_group: mwd
+
+    # splunk variables
+    splunk_rpm_url: "https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=7.2.0&product=universalforwarder&filename=splunkforwarder-7.2.0-8c86330ac18-linux-2.6-x86_64.rpm"
+
+    # sumologic variables
+    sumologic_rpm_url: s3://wex-mobile-devops/installers/sumologic/SumoCollector-19.209-23.x86_64.rpm
+    sumologic_access_id_param: stage.sumologic.accessid
+    sumologic_access_key_param: stage.sumologic.accesskey
+    sumologic_client_name: "{{ host_purpose }}-{{ host_environment }}"
+
+    # trendmicro variables
+    trendmicro_provider: saas
+    trendmicro_url: s3://wex-mobile-devops/installers/trendmicro/TrendMicro-Agent-amzn1-10.1.0-356.x86_64.rpm
+    trendmicro_dsm_url: dsm://agents.deepsecurity.trendmicro.com:443/
+    trendmicro_policy_id: 201
+    trendmicro_tenant_id: stage.trendmicro.tenant-id
+    trendmicro_token: stage.trendmicro.token
+
+    # php
+    php_version: "72"
+    php_create_info_page: yes
+    php_install_optional_packages: yes
+    php_optional_packages:
+    - php72-mysqlnd
+    - php72-mbstring
+    - php72-pdo
+
+    php_deploy_apps:
+    - name: citgo
+      s3_bucket: "wex-mobile-artifacts"
+      s3_prefix: "/salesforce/release/1.0.0/"
+      s3_object: "citgo.zip"
+      doc_root: "/var/www/citgo/html"
+      env:
+      - prop_name: "DB_CONN"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/citgo/db_conn"
+      - prop_name: "OAUTH"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/citgo/oauth"
+      - prop_name: "APP_NAME"
+        secret: "no"
+        encrypted: "no"
+        value: "Citgo"
+      - prop_name: "APP_URL"
+        secret: "no"
+        encrypted: "no"
+        value: "https://citgo.wexfleetcards.com"
+      - prop_name: "HTTPS"
+        secret: "no"
+        encrypted: "no"
+        value: "true"
+
+    - name: esso
+      s3_bucket: "wex-mobile-artifacts"
+      s3_prefix: "/salesforce/release/1.0.0/"
+      s3_object: "esso.zip"
+      doc_root: "/var/www/esso/html"
+      env:
+      - prop_name: "DB_CONN"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/esso/db_conn"
+      - prop_name: "OAUTH"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/esso/oauth"
+      - prop_name: "APP_NAME"
+        secret: "no"
+        encrypted: "no"
+        value: "Esso"
+      - prop_name: "APP_URL"
+        secret: "no"
+        encrypted: "no"
+        value: "https://esso.wexfleetcards.com"
+      - prop_name: "HTTPS"
+        secret: "no"
+        encrypted: "no"
+        value: "true"
+
+    - name: exxon
+      s3_bucket: "wex-mobile-artifacts"
+      s3_prefix: "/salesforce/release/1.0.0/"
+      s3_object: "exxon.zip"
+      doc_root: "/var/www/exxon/html"
+      env:
+      - prop_name: "DB_CONN"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/exxon/db_conn"
+      - prop_name: "OAUTH"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/exxon/oauth"
+      - prop_name: "APP_NAME"
+        secret: "no"
+        encrypted: "no"
+        value: "Exxon"
+      - prop_name: "APP_URL"
+        secret: "no"
+        encrypted: "no"
+        value: "https://exxon.wexfleetcards.com"
+      - prop_name: "HTTPS"
+        secret: "no"
+        encrypted: "no"
+        value: "true"
+
+    - name: speedway
+      s3_bucket: "wex-mobile-artifacts"
+      s3_prefix: "/salesforce/release/1.0.0/"
+      s3_object: "speedway.zip"
+      doc_root: "/var/www/speedway/html"
+      env:
+      - prop_name: "DB_CONN"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/speedway/db_conn"
+      - prop_name: "OAUTH"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/speedway/oauth"
+      - prop_name: "APP_NAME"
+        secret: "no"
+        encrypted: "no"
+        value: "Speedway"
+      - prop_name: "APP_URL"
+        secret: "no"
+        encrypted: "no"
+        value: "https://speedway.wexfleetcards.com"
+      - prop_name: "HTTPS"
+        secret: "no"
+        encrypted: "no"
+        value: "true"
+
+    - name: sunoco
+      s3_bucket: "wex-mobile-artifacts"
+      s3_prefix: "/salesforce/release/1.0.0/"
+      s3_object: "sunoco.zip"
+      doc_root: "/var/www/sunoco/html"
+      env:
+      - prop_name: "DB_CONN"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/sunoco/db_conn"
+      - prop_name: "OAUTH"
+        secret: "yes"
+        encrypted: "yes"
+        value: "stage/salesforce/sunoco/oauth"
+      - prop_name: "APP_NAME"
+        secret: "no"
+        encrypted: "no"
+        value: "Sunoco"
+      - prop_name: "APP_URL"
+        secret: "no"
+        encrypted: "no"
+        value: "https://sunoco.wexfleetcards.com"
+      - prop_name: "HTTPS"
+        secret: "no"
+        encrypted: "no"
+        value: "true"
+
+    # nginx
+    nginx_doc_group: ec2-user
+
+    nginx_config_files:
+      root_config:
+        download_location: "s3://wex-mobile-devops/config/{{ host_environment }}/nginx_configs/salesforce-prod-default.conf"
+        config_location: /etc/nginx/nginx.conf
+
+    # dev server dns
+    dev_server_create_dns: no

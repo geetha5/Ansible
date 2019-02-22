@@ -1,0 +1,10 @@
+---
+
+- name: Get AppDynamics AppServer Agent download location
+  set_fact:
+      appd_app_agent_url_type: "{{ appd_app_agent_zip_url | regex_replace('^(.*)://.*', '\\1') }}"
+
+- name: Set AppDynamics AppServer Agent Zip Name
+  set_fact:
+      appd_app_agent_archive_name: "{{ appd_app_agent_zip_url | regex_replace('^.*\\/(.*)$', '\\1') }}"
+

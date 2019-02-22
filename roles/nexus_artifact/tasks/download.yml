@@ -1,0 +1,133 @@
+---
+
+## Debug Print ENV variable value that was passed ##
+- name: Print out env variable value
+  debug:
+    msg: "{{ lookup('env', item.value.version_env_var) }}"
+
+## Test for S3 Url to Force S3 Download
+- name: Test for s3 url for short circuit
+  set_fact:
+    nexus_artifact_s3_test: "{{ lookup('env', item.value.version_env_var) | regex_search('(s3://.*)') }}"
+
+## set nexus facts when using s3
+- name: Set artifact base version when s3
+  set_fact:
+    nexus_artifact_base_version: "N/A"
+  when: nexus_artifact_s3_test != ""
+
+- name: Set artifact extended version when s3
+  set_fact:
+    nexus_artifact_extended_version: "N/A"
+  when: nexus_artifact_s3_test != ""
+
+- name: Set artifact type  when s3
+  set_fact:
+    nexus_artifact_type: "N/A"
+  when: nexus_artifact_s3_test != ""
+
+### NEXUS Download ###
+# Facts
+# Get base version of the atifact (i.e 1.0.0)
+- name: Get Base Version
+  set_fact:
+    nexus_artifact_base_version: "{{ lookup('env', item.value.version_env_var) | regex_replace('^(\\d+\\.\\d+\\.\\d+)(-(.*))?', '\\1') }}"
+  when: nexus_artifact_s3_test == ""
+
+# Get extended version
+# if release then release
+# if latest then latest snapshot
+# if number then certain snapshot
+- name: Get extended Version
+  set_fact:
+    nexus_artifact_extended_version: "{{ lookup('env', item.value.version_env_var) | regex_replace('^(\\d+\\.\\d+\\.\\d+)(-(.*))?', '\\3') }}"
+  when: nexus_artifact_s3_test == ""
+
+## Set release or snapshot type ##
+# Release type when there is no extended version
+- name: Set Artifact Type (Release)
+  set_fact:
+    nexus_artifact_type: "Release"
+  when: (nexus_artifact_extended_version == "release") and
+        (nexus_artifact_s3_test == "")
+
+# Snapshot type when there is an extended version
+- name: Set Artifact Type (Snapshot)
+  set_fact:
+    nexus_artifact_type: "Snapshot"
+  when: (nexus_artifact_extended_version != "release") and
+        (nexus_artifact_s3_test == "")
+
+## Set download Url ##
+# Release Type
+- name: Get Url Path Group
+  set_fact:
+    nexus_artifact_group_url: "{{ item.value.group.split('.') | join('/') }}"
+  when: (nexus_artifact_extended_version == "release") and
+        (nexus_artifact_s3_test == "")
+
+- name: Set Nexus Url (Release)
+  set_fact:
+    nexus_artifact_url: "{{ nexus_base_url }}/repositories/releases/content/{{ nexus_artifact_group_url }}/{{ item.value.artifact }}/{{ nexus_artifact_base_version }}/{{ item.value.artifact }}-{{ nexus_artifact_base_version }}.jar"
+  when: (nexus_artifact_extended_version == "release") and
+        (nexus_artifact_s3_test == "")
+
+# Latest Snapshot Type
+- name: Set Nexus Url (Snapshot - latest)
+  set_fact:
+    nexus_artifact_url: "{{ nexus_base_url }}/artifact/maven/redirect?r=snapshots&g={{ item.value.group }}&a={{ item.value.artifact }}&v={{ nexus_artifact_base_version }}-SNAPSHOT"
+  when: (nexus_artifact_type == "Snapshot") and
+        (nexus_artifact_extended_version == "latest") and
+        (nexus_artifact_s3_test == "")
+
+# Fixed Snapshot Type
+- name: Get Url Path Group
+  set_fact:
+    nexus_artifact_group_url: "{{ item.value.group.split('.') | join('/') }}"
+  when: (nexus_artifact_type == "Snapshot") and
+        (nexus_artifact_extended_version != "latest") and
+        (nexus_artifact_s3_test == "")
+
+- name: Set Nexus Url (Snapshot - Fixed)
+  set_fact:
+    nexus_artifact_url: "{{ nexus_base_url }}/repositories/snapshots/content/{{ nexus_artifact_group_url }}/{{ item.value.artifact }}/{{ nexus_artifact_base_version }}-SNAPSHOT/{{ item.value.artifact }}-{{ nexus_artifact_base_version }}-{{ nexus_artifact_extended_version }}.jar"
+  when: nexus_artifact_type == "Snapshot" and nexus_artifact_extended_version != "latest" and nexus_artifact_s3_test == ""
+
+
+## Download Artifact - Nexus ##
+- name: Download Artifact - Nexus
+  get_url:
+    url: "{{ nexus_artifact_url }}"
+    dest: "{{ item.value.downloaded_location }}"
+    owner: root
+    group: root
+    mode: 0744
+  when: nexus_artifact_s3_test == ""
+
+### S3 Download ###
+- name: Set Artifact S3 Bucket
+  set_fact:
+    nexus_artifact_s3_bucket: "{{ lookup('env', item.value.version_env_var) | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+  when: nexus_artifact_s3_test != ""
+
+- name: Set Artifact S3 Key
+  set_fact:
+    nexus_artifact_s3_key: "{{ lookup('env', item.value.version_env_var) | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)$', '\\1') }}"
+  when: nexus_artifact_s3_test != ""
+
+## Download Artifact - S3 ##
+- name: Download Artifact - S3
+ aws_s3:
+    bucket: "{{ nexus_artifact_s3_bucket }}"
+    object: "{{ nexus_artifact_s3_key }}"
+    dest: "{{ item.value.downloaded_location }}"
+    mode: get
+  when: nexus_artifact_s3_test != ""
+
+- name: Correct Ownership
+  file:
+    path: "{{ item.value.downloaded_location }}"
+    owner: root
+    group: root
+    mode: 0744
+  when: nexus_artifact_s3_test != ""

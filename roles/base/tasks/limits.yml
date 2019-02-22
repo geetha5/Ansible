@@ -1,0 +1,9 @@
+---
+
+- name: Set Limits.conf
+  template:
+    src: limits.conf.j2
+    dest: /etc/security/limits.conf
+    owner: root
+    group: root
+    mode: 0644

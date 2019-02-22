@@ -1,0 +1,11 @@
+---
+
+- name: ansible module (web) role test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/ansiblemod-http-test.yml
+
+  roles:
+    - ansible_module

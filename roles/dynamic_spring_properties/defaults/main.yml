@@ -1,0 +1,13 @@
+---
+
+# spring_props_file: the file location of the new spring properties file
+spring_props_file: /root/spring.properties
+
+# spring_props_properties: a dict of properties that is laid out like the following
+# spring_props_properties:
+#   <prop A>:
+#     prop_name: <name of the property in the file>
+#     param_store: <yes or no> - if the value is held in param store encrypted or not
+#     encrypted: <yes or no> - if the value is encrypted in param store
+#     value: <param store name or value> - either the value or the param store key
+spring_props_properties:

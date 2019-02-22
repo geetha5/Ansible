@@ -1,0 +1,14 @@
+---
+
+- name: install Squid
+  yum:
+    name: squid
+    state: "{{ squid_package_state }}"
+
+- name: Make Squid SSL Dir
+  file:
+    path: /etc/squid/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: 0660

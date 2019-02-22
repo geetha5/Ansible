@@ -1,0 +1,29 @@
+---
+
+- name: Turn Off 0.amazon.pool.ntp.org
+  lineinfile:
+    path: /etc/ntp.conf
+    line: '# server 0.amazon.pool.ntp.org iburst'
+    regexp: 'server 0.amazon.pool.ntp.org iburst'
+    state: present
+
+- name: Turn Off 1.amazon.pool.ntp.org
+  lineinfile:
+    path: /etc/ntp.conf
+    line: '# server 1.amazon.pool.ntp.org iburst'
+    regexp: 'server 1.amazon.pool.ntp.org iburst'
+    state: present
+
+- name: Turn Off 2.amazon.pool.ntp.org
+  lineinfile:
+    path: /etc/ntp.conf
+    line: '# server 2.amazon.pool.ntp.org iburst'
+    regexp: 'server 2.amazon.pool.ntp.org iburst'
+    state: present
+
+- name: Turn Off 3.amazon.pool.ntp.org
+  lineinfile:
+    path: /etc/ntp.conf
+    line: '# server 3.amazon.pool.ntp.org iburst'
+    regexp: 'server 3.amazon.pool.ntp.org iburst'
+    state: present

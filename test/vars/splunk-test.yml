@@ -1,0 +1,18 @@
+---
+splunk_install_type: forwarder
+
+# splunk_rpm_url - This is the url to pull the splunk RPM package from, this can be an http(s) or s3 url
+splunk_rpm_url: https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=7.2.0&product=universalforwarder&filename=splunkforwarder-7.2.0-8c86330ac18-linux-2.6-x86_64.rpm
+#splunk_rpm_url: https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=linux&version=7.2.0&product=splunk&filename=splunk-7.2.0-8c86330ac18-linux-2.6-x86_64.rpm
+
+# S3 Bucket based install
+#splunk_forwarder_rpm_url: s3://wex-mobile-devops/installers/splunk/splunkforwarder-7.1.3-51d9cac7b837-linux-2.6-x86_64.rpm
+
+splunk_mgmt_port: 6089
+
+# splunk_deploy_master - this is the IP and port for the splunk deployment master
+splunk_deploy_master_hostname: deploy.non-prod.search.wex-tools.com
+splunk_deploy_master_port: 8089
+
+splunk_admin_username: admin
+splunk_admin_password: Sp1unk_r0ck5!

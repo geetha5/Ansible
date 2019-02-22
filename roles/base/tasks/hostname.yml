@@ -1,0 +1,17 @@
+---
+
+- name: Set Hostname Fact
+  hostname:
+    name: "{{ aws_hostname }}"
+
+- name: Set Instance Name Tag
+  ec2_tag:
+    region: "{{ ansible_ec2_placement_region }}"
+    resource: "{{ ansible_ec2_instance_id }}"
+    state: present
+    tags:
+      Name: "{{ aws_hostname }}"
+      Purpose: "{{ host_purpose }}"
+      Group: "{{ owning_group }}"
+      Environment: "{{ host_environment }}"
+      

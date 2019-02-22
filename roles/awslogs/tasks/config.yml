@@ -1,0 +1,19 @@
+---
+
+- name: Create awslogs state dir
+  file:
+    path: /var/awslogs
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Place awslogs config
+  template:
+    src: awslogs.conf.j2
+    dest: /etc/awslogs/awslogs.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Restart awslogs

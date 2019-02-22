@@ -1,0 +1,14 @@
+---
+
+- name: Touch Properties File
+  file:
+    path: "{{ php_env_props_file }}"
+    state: touch
+    owner: nginx
+    group: "{{ nginx_doc_group }}"
+    mode: 0640
+
+- name: Write out PHP Env Properties
+  include: "write_prop.yml"
+  with_dict: "{{ php_env_props_properties }}"
+

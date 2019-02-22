@@ -1,0 +1,23 @@
+---
+
+- name: Set Cloudwatch Agent S3 Bucket
+  set_fact:
+    cloudwatch_agent_s3_bucket: "{{ cloudwatch_agent_url | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+
+- name: Set Cloudwatch Agent S3 Key
+  set_fact:
+    cloudwatch_agent_s3_key: "{{ cloudwatch_agent_url | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)$', '\\1') }}"
+
+- name: Get CloudWatch Agent - S3
+ aws_s3:
+    bucket: "{{ cloudwatch_agent_s3_bucket }}"
+    object: "{{ cloudwatch_agent_s3_key }}"
+    dest: "/root/installers/cloudwatch_agent.zip"
+    mode: get
+
+- name: Correct Ownership
+  file:
+    path: "/root/installers/cloudwatch_agent.zip"
+    owner: root
+    group: root
+    mode: 0744

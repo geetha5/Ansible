@@ -1,0 +1,24 @@
+{
+  "Alarms": [
+    {
+        "Name": "<Alert Name>"
+        "Enabled": true | false,
+        "Description": "<a description>"
+        "MetricName": "<Valid Metric Name>",
+        "Unit": Seconds | Microseconds | Milliseconds | Bytes | Kilobytes | Megabytes | Gigabytes | Terabytes | Bits | Kilobits | Megabits | Gigabits | Terabits | Percent | Count | Bytes/Second | Kilobytes/Second | Megabytes/Second | Gigabytes/Second | Terabytes/Second | Bits/Second | Kilobits/Second | Megabits/Second | Gigabits/Second | Terabits/Second | Count/Second | None,
+        "ComparisonOperator": GreaterThanOrEqualToThreshold | GreaterThanThreshold | LessThanThreshold | LessThanOrEqualToThreshold,
+        "Threshold": <double>,
+        "Period": <int>,
+        "NameSpace": <namespace>,
+        "Dimensions": [
+            <optional list of dimensions>
+        ],
+        "EvaluationPeriods": <int>,
+        "Statistic": SampleCount | Average | Sum | Minimum | Maximum,
+        "SnsTopics": [ <topic-1-Arnan>, ... ]
+    },
+    .
+    .
+    .
+  ]
+}

@@ -1,0 +1,23 @@
+---
+
+- name: Get AppDynamics Machine Agent download location
+  set_fact:
+    appd_machine_agent_url_type: "{{ appd_machine_agent_rpm_url | regex_replace('^(.*)://.*', '\\1') }}"
+
+- name: Set Common AppDynamics Machine Agent Facts
+  include_tasks: facts.yml
+
+- name: AppDynamics Machine Agent Web Download
+  include_tasks: download-web.yml
+  when: (appd_machine_agent_url_type == "http") or
+        (appd_machine_agent_url_type == "https")
+
+- name: AppDynamics Machine Agent S3 Download
+  include_tasks: download-s3.yml
+  when: appd_machine_agent_url_type == "s3"
+
+- name: AppDynamics Machine Agent Install
+  include_tasks: install.yml
+
+- name: Configure AppDynamics Machine Agent
+  include_tasks: config.yml

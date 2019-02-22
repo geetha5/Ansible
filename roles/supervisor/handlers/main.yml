@@ -1,0 +1,12 @@
+---
+
+- name: Restart Supervisor
+  service:
+    name: supervisord
+    state: restarted
+
+- name: Reread Supervisor
+  shell: supervisorctl reread
+
+- name: Update Supervisor
+  shell: supervisor update

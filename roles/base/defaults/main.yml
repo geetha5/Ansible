@@ -1,0 +1,22 @@
+---
+
+# host_purpose - the purpose of the machine that will be added to the hostname
+host_purpose: ansible
+# host_environment - the environment for the host
+host_environment: test
+# owning_group - the group that this instance belongs too
+owning_group: mobile
+
+# base_os_limits - os limits /etc/security/limits.conf
+#
+# base_os_limits:
+#   <limit_name>:
+#     domain: <value>
+#     type: <value>
+#     item: <value>
+#     value: <value>
+
+# pip package versions
+# boto3 - AWS python SDK
+pip_util_boto3_version: present
+

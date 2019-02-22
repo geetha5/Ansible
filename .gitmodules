@@ -1,0 +1,12 @@
+[submodule "roles/tomcat"]
+	path = roles/tomcat
+url=ssh://git@bitbucket.wexapps.com:7999/ansible/tomcat.git
+	branch = master
+[submodule "roles/chrony"]
+	path = roles/chrony
+	url = ssh://git@bitbucket.wexapps.com:7999/ansible/chrony.git
+	branch = master
+[submodule "roles/splunk"]
+	path = roles/splunk
+	url = ssh://git@bitbucket.wexapps.com:7999/ansible/splunk.git
+	branch = master

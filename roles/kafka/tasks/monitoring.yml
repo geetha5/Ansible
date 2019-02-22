@@ -1,0 +1,4 @@
+---
+
+- name: Install and Run Kafka-Health-Check
+  include_tasks: "monitoring/kafka-health-check.yml"

@@ -1,0 +1,11 @@
+---
+
+- name: Squid Reload
+  service:
+    name: squid
+    state: reloaded
+
+- name: Squid Restart
+  service:
+    name: squid
+    state: restarted

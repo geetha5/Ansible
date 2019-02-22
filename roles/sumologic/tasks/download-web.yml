@@ -1,0 +1,24 @@
+---
+
+- name: Get Sumologic Http Download Location
+  set_fact:
+    sumologic_http_location: "{{ sumologic_rpm_url | regex_replace('^.*://([0-9a-zA-Z.]*).*$', '\\1') }}"
+
+- name: Set RPM Name for download from Sumologic Direct Link
+  set_fact:
+    sumologic_rpm_name: "sumologic-{{ ansible_date_time.date }}.rpm"
+  when: sumologic_http_location == "collectors.sumologic.com"
+
+- name: Set RPM Name for download from non Sumologic Http
+  set_fact:
+    sumologic_rpm_name: "{{ sumologic_rpm_url | regex_replace('^.*\\/(.*)$', '\\1') }}"
+  when: sumologic_http_location != "collectors.sumologic.com"
+
+- name: Get Sumologic RPM - Web
+  get_url:
+    url: "{{ sumologic_rpm_url }}"
+    validate_certs: no
+    dest: "/root/installers/{{ sumologic_rpm_name }}"
+    owner: root
+    group: root
+    mode: 0744

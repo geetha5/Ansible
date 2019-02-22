@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# /etc/init.d/cloudwatch-agent
+
+# cloudwatch agent install path
+CLOUDWATCH_AGENT='/opt/aws/amazon-cloudwatch-agent'
+CLOUDWATCH_CONFIG_FILE='/opt/aws/amazon-cloudwatch-agent/config/config.json'
+
+source /etc/rc.d/init.d/functions
+
+RETVAL=0
+PIDFILE="/opt/aws/amazon-cloudwatch-agent/var/amazon-cloudwatch-agent.pid"
+desc="cloudwatch agent daemon"
+
+start() {
+    echo -n $"Starting ${desc}: "
+    $CLOUDWATCH_AGENT/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:$CLOUDWATCH_CONFIG_FILE -s
+    RETVAL=$?
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping ${desc}: "
+    $CLOUDWATCH_AGENT/bin/amazon-cloudwatch-agent-ctl -m ec2 -a stop
+    RETVAL=$?
+    sleep 5
+}
+
+restart () {
+    stop
+    start
+}
+
+get_pid() {
+    cat "$PIDFILE"
+}
+
+checkstatus() {
+    $CLOUDWATCH_AGENT/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status
+    RETVAL=$?
+}
+
+case "$1" in
+    start)
+      start
+      ;;
+    stop)
+      stop
+      ;;
+    status)
+      checkstatus
+      ;;
+    restart)
+      restart
+      ;;
+    *)
+      echo $"Usage: $0 {start|stop|status|restart}"
+      exit 1
+esac
+
+exit $RETVAL

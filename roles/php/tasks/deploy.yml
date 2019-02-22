@@ -1,0 +1,25 @@
+---
+
+## Debug Print ENV variable value that was passed ##
+- name: Print out env variable value
+  debug:
+    msg: "{{ lookup('env', php_deploy_app_env_version) }}"
+
+## download from s3
+- name: Get Artifact with prefix
+  s3:
+    bucket: "{{ item.s3_bucket }}"
+    object: "{{ item.s3_prefix }}{{ item.s3_object }}"
+    dest: "/root/{{ item.s3_object }}"
+    mode: get
+  with_items: php_deploy_apps
+
+- name: Untar apps
+  unarchive:
+    src: "/root/{{ item.s3_object }}"
+    dest: "{{ item.doc_root }}"
+    owner: nginx
+    group: "{{ nginx_doc_group }}"
+    mode: 0774
+  with_items: php_deploy_apps
+

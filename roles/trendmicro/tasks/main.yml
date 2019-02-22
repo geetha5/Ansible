@@ -1,0 +1,30 @@
+---
+
+- name: Get TrendMicro download location
+  set_fact:
+    trendmicro_url_type: "{{ trendmicro_url | regex_replace('^(.*)://.*', '\\1') }}"
+
+- name: TrendMicro Web Download
+  include_tasks: download-web.yml
+  when: (trendmicro_url_type == "http") or
+        (trendmicro_url_type == "https")
+
+- name: TrendMicro S3 Download
+  include_tasks: download-s3.yml
+  when: trendmicro_url_type == "s3"
+
+- name: TrendMicro Hosted Install
+  include_tasks: install-hosted.yml
+  when: trendmicro_provider == "hosted"
+
+- name: TrendMicro SaaS Install
+  include_tasks: install-saas.yml
+  when: trendmicro_provider == "saas"
+
+- name: TrendMicro Hosted Config
+  include_tasks: config-hosted.yml
+  when: trendmicro_provider == "hosted"
+
+- name: TrendMicro SaaS Config
+  include_tasks: config-saas.yml
+  when: trendmicro_provider == "saas"

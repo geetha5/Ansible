@@ -1,0 +1,11 @@
+---
+
+- name: base role test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+      - /vagrant/test/vars/base_limits-test.yml
+
+  roles:
+    - base

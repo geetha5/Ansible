@@ -1,0 +1,20 @@
+---
+
+- name: Create Doc Roots
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_doc_group }}"
+  with_items: "{{ nginx_document_roots }}"
+
+- name: Turn Off IPV6
+  lineinfile:
+    path: /etc/nginx/nginx.conf
+    regexp: 'listen       \[::\]:80 default_server'
+    line: '#listen       [::]:80 default_server;'
+
+- name: Nginx Config
+  include: "config/nginx_config.yml"
+  static: no
+  with_dict: "{{ nginx_config_files }}"

@@ -1,0 +1,40 @@
+{
+    "agent": {
+        "metrics_collection_interval": {{ cloudwatch_agent_default_interval }},
+        "logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log",
+        "debug": false
+    },
+    "metrics": {
+        "metrics_collected": {
+            {%- for key, value in cloudwatch_agent_metrics.iteritems() %}
+            "{{ key }}": {
+                {% if key == 'cpu' %}
+                "total_cpu": {{ value.total_cpu | default('false') }},
+                {% endif %}
+                {%- if value.resources is defined %}
+                "resources": [
+                    {% for resource in value.resources %}
+                        "{{ resource }}"{% if not loop.last %},{% endif %}
+
+                    {% endfor %}
+                ],
+                {% endif %}
+                {%- if value.collection_interval is defined %} "metrics_collection_interval": {{ value.collection_interval }}, {% endif %}
+                "measurement": [
+                    {% for measurement in value.measurements %}
+                        "{{ measurement }}"{% if not loop.last %},{% endif %}
+                    {% endfor %}
+                ]
+            }{% if not loop.last %},{% endif %}
+
+            {% endfor %}
+        },
+        "append_dimensions": {
+            "ImageId": "${aws:ImageId}",
+            "InstanceId": "${aws:InstanceId}",
+            "InstanceType": "${aws:InstanceType}",
+            "AutoScalingGroupName": "${aws:AutoScalingGroupName}"
+        },
+        "aggregation_dimensions": [ ["AutoScalingGroupName"], ["InstanceId"], ["InstanceType"]]
+    }
+}

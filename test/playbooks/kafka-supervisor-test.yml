@@ -1,0 +1,15 @@
+---
+
+- name: Kafka and Zookeeper (s3) test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/kafka-supervisor-test.yml
+
+  roles:
+    - base
+    - jdk
+    - supervisor
+    - zookeeper
+    - kafka

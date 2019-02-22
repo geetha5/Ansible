@@ -1,0 +1,11 @@
+---
+
+# ansible_modules = Is a list of hassh in the following format
+# ansible_modules:
+#   <mod_name>:
+#     url: <s3 or https url> - the url to pull the module
+#     create_unarchive_dir: <"yes" or "no"> - create a directory to expand the module in, should be no if the archive has an internal directory
+#     unarchive_dir: <dir_name> - the name of the dir (either created or from expanding the archive)
+#   <mod_name_2>:
+#     ...
+ansible_modules: 

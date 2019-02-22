@@ -1,0 +1,531 @@
+import com.amazonaws.auth.*
+import com.amazonaws.auth.profile.ProfileCredentialsProvider
+import com.amazonaws.services.s3.*
+import com.amazonaws.services.s3.transfer.*
+import groovy.json.*
+import org.yaml.snakeyaml.*
+
+buildscript {
+    ext {
+        snakeYamlVersion = '1.17'
+        awsVersion = '1.11.209'
+    }
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.yaml:snakeyaml:${snakeYamlVersion}"
+        classpath "com.amazonaws:aws-java-sdk-core:${awsVersion}"
+        classpath "com.amazonaws:aws-java-sdk-s3:${awsVersion}"
+    }
+}
+
+ext {
+    configFile = project.hasProperty('configFile') ? project.property('configFile') : "none"
+    // aws credentials from the getAwsCredentials() lookup function
+    awsCredentials = getAwsCredentials()
+    // ansible dev version
+    devAnsibleVersion = getAnsibleDevVersion()
+    // S3 properties
+    s3Bucket = loadStringProp("s3Bucket", "wex-mwd-devops-dev")
+    s3Region = loadStringProp("s3Region", "us-east-1")
+    s3KeyBase = loadStringProp("s3KeyBase", "ansible")
+    // The build to promote
+    buildToPromote = loadStringProp("buildToPromote", "latest")
+    // The version to promote too
+    promotedVersion = loadStringProp("promotedVersion", "0.0.1")
+    // skip yaml validation
+    skipYamlValidation = loadBooleanProp("skipYamlValidation", false)
+    // git information
+    gitHash = 'git rev-parse HEAD'.execute().getText().trim()
+    gitBranch = 'git rev-parse --abbrev-ref HEAD'.execute().getText().trim()
+}
+
+// Common Tasks //
+task clean(type:Task) {
+    description = "Removes the build and temp directory if they exist"
+    group = "Common"
+
+    doLast {
+        new File('build').deleteDir()
+        new File('temp').deleteDir()
+    }
+}
+
+// Build Tasks //
+task createBuildDir(type:Task) {
+    description = "Creates build output directory"
+    group = "Build"
+
+    doLast {
+        new File('build').mkdir()
+    }
+}
+
+task cleanBuildDir(type:Task) {
+    description = "Removes the build directory"
+    group = "Build"
+
+    doLast {
+        new File('build').deleteDir()
+    }
+}
+
+task validateAnsible(type:Task) {
+    description = "Validates all the ansible yaml for the roles"
+    group = "Build"
+
+    doLast {
+        if (!skipYamlValidation) {
+            logger.lifecycle("Validating Ansible Yaml Files:")
+            boolean ansibleValid = validateYaml(new File("roles"))
+
+            if (!ansibleValid) {
+                throw new GradleException('Ansible Yaml Validation Failed')
+            }
+        }
+        else {
+            logger.lifecycle("Skipping Yaml Validation")
+        }
+    }
+}
+
+task zipRoles(type:Zip) {
+    description = "Creates Ansible role archive"
+    group = "Build"
+
+    dependsOn 'createBuildDir'
+
+    destinationDir new File('build')
+    archiveName 'ansible_roles.zip'
+    exclude '*/README.md'
+    from 'roles'
+}
+
+// Publish Tasks //
+task build(type:Task) {
+    description = "Build Ansible Roles and pushes to s3"
+    group = "Build"
+
+    dependsOn 'cleanBuildDir'
+    dependsOn 'zipRoles'
+
+    doLast {
+        // get the current timestamp (UTC) and create the base s3Key fro the build
+        String buildTimestamp = new Date().format("yyyyMMdd-HHmmss", TimeZone.getTimeZone("UTC"))
+
+        logger.lifecycle("making build ${devAnsibleVersion}_${buildTimestamp}")
+
+        String buildS3Key = "${s3KeyBase}/dev/${devAnsibleVersion}_${buildTimestamp}"
+        String latestS3Key = "${s3KeyBase}/dev/latest.txt"
+        File latestFile = new File("build/latest.txt")
+        File metadataFile = new File("build/metadata.json")
+
+        //Write and upload latest tag file
+        latestFile << "${devAnsibleVersion}_${buildTimestamp}"
+        uploadToS3(s3Bucket, latestS3Key, "build/latest.txt", false)
+
+        // upload build/ansible_roles.zip
+        String s3Key = "${buildS3Key}/ansible_roles.zip"
+        String uploadFile = "build/ansible_roles.zip"
+        uploadToS3(s3Bucket, s3Key, uploadFile, false)
+
+        // upload scripts directory and everything contained in it
+        s3Key = "${buildS3Key}/scripts"
+        uploadFile = "scripts"
+        uploadToS3(s3Bucket, s3Key, uploadFile, true)
+
+        // create and upload metadatafile
+        String json = JsonOutput.toJson([gitHash: gitHash, gitBranch: gitBranch])
+        metadataFile << json
+        uploadToS3(s3Bucket, "${buildS3Key}/metadata.json", metadataFile.path, false)
+
+        logger.lifecycle("Created build s3://${s3Bucket}/${s3KeyBase}/dev/${devAnsibleVersion}_${buildTimestamp}")
+    }
+}
+
+// Promote Tasks //
+task createTempDir(type:Task) {
+    description = "Creates a temp dir for file staging"
+    group = "Promote"
+
+    doLast {
+        new File('temp').mkdir()
+    }
+}
+
+task cleanTempDir(type:Task) {
+    description = "Cleans the temp dir"
+    group = "Promote"
+
+    doLast {
+        new File('temp').deleteDir()
+    }
+}
+
+task promoteBuild(type:Task) {
+    description = "Promotes a dev build to a release"
+    group = "Promote"
+
+    dependsOn 'cleanTempDir'
+    dependsOn 'createTempDir'
+
+    doLast {
+        String buildNumberToPromote
+
+        if (buildToPromote == "latest") {
+            buildNumberToPromote = getLatestBuild("${s3KeyBase}/dev/latest.txt")
+
+            if (!checkForS3Object(s3Bucket, "${s3KeyBase}/dev/${buildNumberToPromote}/ansible_roles.zip")) {
+                throw new GradleException("Build to promote ${buildNumberToPromote} doesn't exist")
+            }
+
+            (promotedVersion) = buildNumberToPromote.tokenize('_')
+            String nextVersion = bumpVersion(promotedVersion)
+            File versionFile = new File(projectDir, "version.txt")
+            versionFile.delete()
+            versionFile << "${nextVersion}"
+
+            logger.lifecycle("promoting latest build: ${buildNumberToPromote}, next version: ${nextVersion}")
+        }
+        else {
+            buildNumberToPromote = buildToPromote
+
+            if (!checkForS3Object(s3Bucket, "${s3KeyBase}/dev/${buildNumberToPromote}/ansible_roles.zip")) {
+                throw new GradleException("Build to promote ${buildNumberToPromote} doesn't exist")
+            }
+        }
+
+        if (checkForS3Object(s3Bucket, "${s3KeyBase}/releases/${promotedVersion}/ansible_roles.zip")) {
+            throw new GradleException("Version: ${promotedVersion} already exists")
+        }
+        else {
+            logger.lifecycle("promoting build ${buildNumberToPromote} to version ${promotedVersion}")
+
+            String sourceS3Key = "${s3KeyBase}/dev/${buildNumberToPromote}/"
+            String tempLocation = "temp/${buildNumberToPromote}"
+            String uploadTemp = "temp/${buildNumberToPromote}/${s3KeyBase}/dev/${buildNumberToPromote}"
+            String destS3Key = "${s3KeyBase}/releases/${promotedVersion}"
+            downloadFromS3(s3Bucket, sourceS3Key, tempLocation, true)
+            uploadToS3(s3Bucket, destS3Key, uploadTemp, true)
+
+            logger.lifecycle("promoted build s3://${s3Bucket}/${s3KeyBase}/releases/${promotedVersion}")
+        }
+    }
+}
+
+// helper functions //
+/**
+ * This will get the version for the ansible dev cycle
+ * @return the version of the ansible dev cycle
+ */
+String getAnsibleDevVersion() {
+    String version = new File("version.txt").text.trim()
+    return version
+}
+
+/**
+ * This will load a boolean property from a json file if it is set and then
+ * from the typical gradle property source and then a default
+ * @param propertyName the name of the property in the config or prop file
+ * @param defaultValue the supplied default
+ * @return the property value from one of the option sources
+ */
+boolean loadBooleanProp(String propertyName, boolean defaultValue) {
+
+    logger.debug("configFile is ${configFile}")
+    // if the configFile is present check there first
+    if (configFile != "none") {
+        logger.debug("JSON config file is present checking for property ${propertyName}")
+        Object json = jsonSlurper().parseText(new File(configFile).text)
+        if (json.KeySet().contains(propertyName)) {
+            logger.debug("Property: ${propertyName} found in JSON config file, setting to value")
+            return json[propertyName]
+        }
+        else {
+            logger.debug("Property: ${propertyName} not found in config checking properties of returning defualt")
+            boolean value = project.hasProperty(propertyName) ? project.property(propertyName).toBoolean() : defaultValue
+            return value
+        }
+    }
+    else {
+        logger.debug("JSON config file not passed, checking properties or returning default for ${propertyName}")
+        boolean value = project.hasProperty(propertyName) ? project.property(propertyName).toBoolean() : defaultValue
+        return value
+    }
+}
+
+/**
+ * This will load a string property from a json file if it is set and then
+ * from the typical gradle property source and then a default
+ * @param propertyName the name of the property in the config or prop file
+ * @param defaultValue the supplied default
+ * @return the property value from one of the option sources
+ */
+String loadStringProp(String propertyName, String defaultValue) {
+
+    logger.debug("configFile is ${configFile}")
+    // if the configFile is present check there first
+    if (configFile != "none") {
+        logger.debug("JSON config file is present checking for property ${propertyName}")
+        Object json = new JsonSlurper().parseText(new File(configFile).text)
+        if (json.keySet().contains(propertyName)) {
+            logger.debug("Property: ${propertyName} found in JSON config file, setting to value")
+            return json[propertyName]
+        }
+        else {
+            logger.debug("Property: ${propertyName} not found in config checking properties or returning defualt")
+            String value = project.hasProperty(propertyName) ? project.property(propertyName) : defaultValue
+            return value
+        }
+    }
+    // else look for a property or return default
+    else {
+        logger.debug("JSON config file not passed, checking properties or returning defualt")
+        String value = project.hasProperty(propertyName) ? project.property(propertyName) : defaultValue
+        return value
+    }
+}
+
+/**
+ * This will validate all the yaml files in a directory path
+ * @param baseDir the basedir to look for yaml files
+ * @return a boolean if the yaml files are all valid
+ */
+boolean validateYaml(File baseDir) {
+
+    Yaml yaml = new Yaml()
+    boolean yamlValid = true
+
+    new File(baseDir.absolutePath).eachFileRecurse() { file ->
+        if (file.name.endsWith('.yaml') || file.name.endsWith('.yml')) {
+            try {
+                yaml.load(new FileInputStream(file))
+                logger.lifecycle("${file} --> valid")
+            }
+            catch (Exception e) {
+                logger.lifecycle("${file} --> Not valid yaml")
+                yamlValid = false
+            }
+        }
+    }
+    return yamlValid
+}
+
+/**
+ * This will look up the latest build and return the
+ * timestamped dev build
+ * @param latestBuildFileS3Key the s3key of the latest build file
+ * @return the latest dev build
+ */
+String getLatestBuild(String latestBuildFileS3Key) {
+
+    // make sure the temp dir is present
+    File tempDir = new File('temp')
+    tempDir.mkdir()
+
+    downloadFromS3(s3Bucket ,latestBuildFileS3Key, 'temp/latestBuild.txt', false)
+
+    String latestBuild = new File('temp/latestBuild.txt').text
+    return latestBuild
+}
+
+/**
+ * This will upload a file or directory (will all contained files
+ * directories to s3).
+ * @param s3Bucket the s3bucket to upload to
+ * @param s3Key The S3 Key to upload to
+ * @param file The file or directory to upload
+ * @param isDir If a directory is being uploaded
+ * @return nothing
+ */
+void uploadToS3(String s3Bucket, String s3Key, String file, boolean isDir) {
+
+    TransferManager tm = getTransferManager()
+    Transfer transfer
+
+    // uploading a directory
+    if (isDir) {
+        try {
+            transfer = tm.uploadDirectory(s3Bucket, s3Key, new File(file), true)
+        }
+        catch (Exception e) {
+            logger.error(e)
+        }
+    }
+    // uploading a single file
+    else {
+        try {
+            transfer = tm.upload(s3Bucket, s3Key, new File(file))
+        }
+        catch (Exception e){
+            logger.error(e)
+        }
+    }
+    transfer.waitForCompletion()
+}
+
+/**
+ * This will delete a key from s3 this could be a
+ * directory or a file
+ * @param s3bucket the bucket to run the action on
+ * @param s3Key the s3 key to delete
+ * @return nothing
+ */
+void deleteS3Key(String s3Bucket, String s3Key) {
+
+    AmazonS3Client s3Client = getS3Client()
+
+    try {
+        s3Client.deleteObject(s3Bucket, s3Key)
+    }
+    catch (Exception e) {
+      logger.error(e)
+    }
+}
+
+/**
+ * This will download a file or directory from s3
+ * @param s3Bucket the s3 bucket to download from
+ * @param s3Key the s3 key to download
+ * @param localFile the location to download to
+ * @param isDir if the item to download is a directory
+ * @return nothing
+ */
+void downloadFromS3(String s3Bucket, String s3Key, String localFile, boolean isDir) {
+
+    TransferManager tm = getTransferManager()
+    Transfer transfer
+
+    if (isDir) {
+        try {
+            transfer = tm.downloadDirectory(s3Bucket, s3Key, new File(localFile))
+        }
+        catch (Exception e) {
+            logger.error(e)
+        }
+    }
+    else {
+        try {
+            transfer = tm.download(s3Bucket, s3Key, new File(localFile))
+        }
+        catch (Exception e) {
+            logger.error(e)
+        }
+    }
+    transfer.waitForCompletion()
+}
+
+/**
+ * expects sem version formatting
+ * @param version
+ * @return string with lowest proved version incremented
+ */
+static String bumpVersion(String version) {
+    def (major, minor, patch) = version.tokenize('.')
+
+    if (patch != null) {
+        patch = (patch as Integer) + 1
+        return "${major}.${minor}.${patch}"
+    } else if (minor != null) {
+        minor = (minor as Integer) + 1
+        return "${major}.${minor}"
+    } else {
+        major = (major as Integer) + 1
+        return "${major}"
+    }
+}
+
+/**
+ * This will check if an object in s3 exists
+ * @param s3Bucket the s3 bucket to check
+ * @param s3Key the s3key to check
+ * @return boolean true if the key exists otherwise false
+ */
+boolean checkForS3Object(String s3Bucket, String s3Key) {
+
+    AmazonS3Client s3Client = getS3Client()
+
+    try {
+        s3Client.doesObjectExist(s3Bucket, s3Key)
+    }
+    catch (Exception e) {
+        logger.error(e)
+    }
+}
+
+/**
+ * Helper function to get the S3Client from the provided credentials and
+ * provided region
+ * @return amazon s3 client instance
+ */
+AmazonS3Client getS3Client() {
+
+    AmazonS3Client s3Client = AmazonS3ClientBuilder.standard()
+                            .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
+                            .withRegion(s3Region)
+                            .build()
+
+      return s3Client
+}
+
+/**
+ * Helper function to get the TransferManager from the S3Client
+ * @return transfermanager instance
+ */
+TransferManager getTransferManager() {
+
+    AmazonS3Client s3Client = getS3Client()
+
+    TransferManager tm = TransferManagerBuilder.standard()
+                        .withS3Client(s3Client)
+                        .build()
+
+    return tm
+}
+
+/**
+ * Getting AWS credentials from either a profile, passed as properties or
+ * by the default chain provider
+ * @return aws credentials
+ */
+AWSCredentials getAwsCredentials() {
+
+    // check for json config file for profile or keys
+    Object json
+    if (configFile != "none") {
+        logger.debug("JSON config file is present checking for profile or keys")
+        json = new JsonSlurper().parseText(new File(configFile).text)
+    }
+
+    /*
+       5 cases for getting credentials
+       1. if a profile name is specified in the json config file
+       2. if the accessKey and secretKey are in the json config file
+       3. if a profile name is specified in the properties file use creds from that profile
+       4. if the accessKey and secretKey are in the properties file use those credentials
+       5. used AWSs default credentials chain
+    */
+    if (configFile != "none" && json.keySet().contains("awsProfile")) {
+        logger.debug("loading profile from json config")
+        return new ProfileCredentialsProvider(json["awsProfile"]).getCredentials()
+    }
+    else if (configFile != "none" && (json.keySet().contains("awsAccessKey") && json.keySet().contains("awsSecretKey"))){
+        logger.debug("loading access and secret keys from json config")
+        return new BasicAWSCredentials(json["awsAccessKey"], json["awsSecretKey"])
+    }
+    else if (project.hasProperty("awsProfileName")) {
+        logger.debug("using the AWS credential profile provider")
+        return new ProfileCredentialsProvider(project.property("awsProfileName")).getCredentials()
+    }
+    else if (project.hasProperty("awsAccessKey") && project.hasProperty("awsSecretKey")) {
+        logger.debug("using the AWS credential basic provider")
+        return new BasicAWSCredentials(project.property("awsAccessKey"), project.property("awsSecretKey"))
+    }
+    else {
+        logger.debug("using the AWS default provider chain")
+        return new DefaultAWSCredentialsProviderChain().getCredentials()
+    }
+}
+

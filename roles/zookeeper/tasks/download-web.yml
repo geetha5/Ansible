@@ -1,0 +1,10 @@
+---
+
+- name: Get Zookeeper Package - Web
+  get_url:
+    url: "{{ zookeeper_package_url }}"
+    validate_certs: no
+    dest: "/root/installers/{{ zookeeper_archive_name }}"
+    owner: root
+    group: root
+    mode: 0744

@@ -1,0 +1,12 @@
+---
+
+- name: Cloudwatch HTTP Download Template role test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/cloudwatch-http-template-test.yml
+
+  roles:
+    - base
+    - cloudwatch_agent

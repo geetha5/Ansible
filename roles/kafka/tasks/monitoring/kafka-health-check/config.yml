@@ -1,0 +1,32 @@
+---
+
+- name: Create Kafka Health Check Topics
+  shell: >
+    python /root/ansible_scripts/kafka/health_check_topics.py
+    --environment {{ host_environment }}
+    --broker-id {{ kafka_broker_id }}
+    --zookeepers {{ kafka_zookeeper_list }}
+    --rep-topic-name {{ kafka_hc_replication_topic }}
+
+- name: Kafka-HC Supervisor Config
+  template:
+    src: monitoring/kafka-health-check/supervisor.conf.j2
+    dest: /etc/supervisor/conf.d/kafka-health-check.conf
+    owner: root
+    group: root
+    mode: 0775
+  register: kafka_hc_supervisor_config
+  notify:
+    - Restart Kafka-Health-Check
+
+- name: Kafka-HC Supervisor Reread
+  shell: /usr/local/bin/supervisorctl reread
+  when: kafka_hc_supervisor_config.changed
+
+- name: Kafka-HC Supervisor Update
+  shell: /usr/local/bin/supervisorctl update
+  when: kafka_hc_supervisor_config.changed
+
+- name: Kafka HC Setup Flush Handlers
+  meta: flush_handlers
+

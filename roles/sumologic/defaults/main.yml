@@ -1,0 +1,18 @@
+---
+
+# sumologic_rpm_url - This is the url of the sumologic rpm, this can be an http or s3 url
+sumologic_rpm_url: https://collectors.sumologic.com/rest/download/rpm/64
+# sumologic_access_id_param - This is the key in parameter store for the sumologic access id
+sumologic_access_id_param: sumologic.accessid
+# sumologic_access_key_param - This is the key in parameter store for the sumologic access key
+sumologic_access_key_param: sumologic.accesskey
+# sumologic_client_name - This is the client name for the sumo.conf (usually <lob>-<purpose>-<environment>)
+sumologic_client_name: none-test-dev
+
+# sumologic_sources - This is a list of hashes that will configure the sumo_sources.json file, in the following format
+# 
+# sumologic_sources:
+#   <source1_name>:
+#     <param>: <value>
+#     ...
+sumologic_sources:

@@ -1,0 +1,10 @@
+---
+
+appd_machine_agent_rpm_url: s3://wex-mobile-devops/installers/appdynamics-machine-agent/appdynamics-machine-agent-4.3.8.8-1.x86_64.rpm
+appd_machine_agent_ctrl_hostname: dev.appd.wex-tools.com
+appd_machine_agent_ctrl_port: 8181
+appd_machine_agent_ctrl_host_id: "{{ aws_hostname }}"
+appd_machine_agent_ctrl_access_key: 7b97d5a3-2bf3-428d-9596-7800555d4905
+appd_machine_agent_ctrl_account_name: customer1
+appd_machine_agent_ctrl_sim_enabled: true
+appd_machine_agent_ctrl_machine_path: "GP-MWD|Web|dev|us-east-1|fleetwebdev|{{ aws_hostname }}"

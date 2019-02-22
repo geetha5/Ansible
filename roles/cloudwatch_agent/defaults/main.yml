@@ -1,0 +1,28 @@
+---
+
+# cloudwatch_agent_enabled - if the agent should be enabled or not
+cloudwatch_agent_enabled: yes
+
+# cloudwatch_agent_url - The url of where to download the cloudwatch agent
+cloudwatch_agent_url: https://s3.amazonaws.com/amazoncloudwatch-agent/linux/amd64/latest/AmazonCloudWatchAgent.zip
+
+# cloudwatch_agent_install_dir - The directory where the installer installs the cloudwatch agent to (this shouldn't change)
+cloudwatch_agent_install_dir: /opt/aws/amazon-cloudwatch-agent
+
+## Cloudwatch Agent Settings ##
+
+# cloudwatch_agent_default_interval - The default interval for the metric collection
+cloudwatch_agent_default_interval: 60
+
+cloudwatch_config_url: none
+
+# cloudwatch_agent_metrics - A hash of values to for settings for the metrics
+# cloudwatch_agent_metrics:
+#   <monitor_type> - cpu, swap, disk, mem, etc ..
+#     resources: - The resource spec if the monitor type supports it
+#       <list of resources>
+#     total_cpu: <true or false> - a boolean for if the cpu metrics should be aggregated (only for the cpu monitor type)
+#     measurements: - a list of things metrics (must use the naming found here: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-Configuration-File-Details.html)
+#       <list of measurements>
+#     collection_interval: <collection interval in seconds> - this will override the default setting for that monitor type
+

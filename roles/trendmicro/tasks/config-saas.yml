@@ -1,0 +1,29 @@
+---
+
+- name: Check DS Agent Activation
+  shell: "/opt/ds_agent/dsa_query -c GetAgentStatus | grep \"AgentStatus.dsmDN:.*$ \""
+  register: ds_agent_activation
+  ignore_errors: yes
+
+- name: Reset DS Agent
+  shell: /opt/ds_agent/dsa_control -r
+  when: ds_agent_activation.rc != 0
+
+- name: Get the Encrypted Tenant Id from Param Store
+  shell: >
+    aws ssm get-parameter --name {{ trendmicro_tenant_id }} --with-decryption --query 'Parameter.Value' --output text
+    --region {{ ansible_ec2_placement_region }}
+  register: tenant_id_param_store_query
+  when: trendmicro_tenant_id_location == "param_store"
+
+- name: Get the Encrypted Token from Param Store
+  shell: >
+    aws ssm get-parameter --name {{ trendmicro_token }} --with-decryption --query 'Parameter.Value' --output text
+    --region {{ ansible_ec2_placement_region }}
+  register: token_param_store_query
+  when: trendmicro_token_location == "param_store"
+
+- name: Activate DS Agent
+  shell: "/opt/ds_agent/dsa_control -a {{ trendmicro_dsm_url }} tenantID:'{{ tenant_id_param_store_query.stdout }}' token:'{{ token_param_store_query.stdout }}' policyid:'{{ trendmicro_policy_id }}' &"
+  when: ds_agent_activation.rc != 0
+

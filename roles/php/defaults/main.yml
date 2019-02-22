@@ -1,0 +1,41 @@
+---
+
+# php_version - the version of php to install
+php_version: 70
+
+php_install_optional_packages: no
+
+# php_optional_packages - a list of php yum packages to install
+php_optional_packages:
+
+## php info page ##
+# php_create_info_page - to create an info page (for dev purposes)
+php_create_info_page: no
+
+
+php_deploy_apps: []
+#- name: citgo
+#  s3_bucket: "wex-mobile-artifacts"
+#  s3_prefix: "/salesforce/release/1.0.0/"
+#  s3_object: "citgo.zip"
+#  doc_root: "/var/www/citgo/html"
+#- name: esso
+#  s3_bucket: "wex-mobile-artifacts"
+#  s3_prefix: "/salesforce/release/1.0.0/"
+#  s3_object: "esso.zip"
+#  doc_root: "/var/www/esso/html"
+#- name: exxon
+#  s3_bucket: "wex-mobile-artifacts"
+#  s3_prefix: "/salesforce/release/1.0.0/"
+#  s3_object: "exxon.zip"
+#  doc_root: "/var/www/exxon/html"
+#- name: speedway
+#  s3_bucket: "wex-mobile-artifacts"
+#  s3_prefix: "/salesforce/release/1.0.0/"
+#  s3_object: "speedway.zip"
+#  doc_root: "/var/www/speedway/html"
+#- name: sunoco
+#  s3_bucket: "wex-mobile-artifacts"
+#  s3_prefix: "/salesforce/release/1.0.0/"
+#  s3_object: "sunoco.zip"
+#  doc_root: "/var/www/sunoco/html"

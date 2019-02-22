@@ -1,0 +1,12 @@
+---
+
+- name: AppDynamics AppServer Agent role (web) test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/appdynamics-app-agent-test.yml
+
+  roles:
+    - base
+    - appdynamics_app_agent

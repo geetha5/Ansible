@@ -1,0 +1,12 @@
+---
+
+- name: sumologic role test s3
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/sumologic-s3-test.yml
+
+  roles:
+    - base
+    - sumologic

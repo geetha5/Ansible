@@ -1,0 +1,12 @@
+---
+
+- name: trendmicro saas role test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+    - /vagrant/test/vars/trendmicro-saas-test.yml
+
+  roles:
+    - base
+    - trendmicro

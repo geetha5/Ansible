@@ -1,0 +1,16 @@
+---
+
+- name: Install Supervior (pip) - present or latest
+  pip:
+    name: supervisor
+    state: "{{ supervisor_package_state }}"
+  when: supervisor_package_state != "version"
+
+- name: Install Supervisor (pip) - version
+  pip:
+    name: supervisor
+    version: "{{ supervisor_package_version }}"
+  when: supervisor_package_version != "none"
+
+
+

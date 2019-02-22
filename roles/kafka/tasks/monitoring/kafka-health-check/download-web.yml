@@ -1,0 +1,10 @@
+---
+
+- name: Get Kafka-HC Package - Web
+  get_url:
+    url: "{{ kafka_hc_package_url }}"
+    validate_certs: no
+    dest: "/root/installers/{{ kafka_hc_archive_name }}"
+    owner: root
+    group: root
+    mode: 0744

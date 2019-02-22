@@ -1,0 +1,12 @@
+---
+
+- name: Nexus Artifact s3 test
+  hosts: localhost
+  become: yes
+  become_user: root
+  vars_files:
+        - /vagrant/test/vars/nexus_artifact-s3-test.yml
+
+  roles:
+    - base
+    - nexus_artifact

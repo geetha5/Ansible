@@ -1,0 +1,27 @@
+---
+
+- name: Set TrendMicro S3 Bucket
+  set_fact:
+    trendmicro_s3_bucket: "{{ trendmicro_url | regex_replace('^s3://((\\w+|\\-)*)\\/.*$', '\\1') }}"
+
+- name: Set TrendMicro S3 Key
+  set_fact:
+    trendmicro_s3_key: "{{ trendmicro_url | regex_replace('^s3://[0-9a-zA-Z\\-]*\\/(.*)\\/.*$', '\\1') }}"
+
+- name: Set TrendMicro RPM Name
+  set_fact:
+    trendmicro_rpm_name: "{{ trendmicro_url | regex_replace('^.*\\/(.*)$', '\\1') }}"
+
+- name: Get TrendMicro RPM - S3
+  aws_s3:
+    bucket: "{{ trendmicro_s3_bucket }}"
+    object: "{{ trendmicro_s3_key }}/{{ trendmicro_rpm_name }}"
+    dest: "/root/installers/{{ trendmicro_rpm_name }}"
+    mode: get
+
+- name: TrendMicro Correct Ownership
+  file:
+    path: "/root/installers/{{ trendmicro_rpm_name }}"
+    owner: root
+    group: root
+    mode: 0744

@@ -1,0 +1,29 @@
+---
+
+- name: Get Sumo AccessId From Param Store
+  shell: >
+    aws ssm get-parameter --name {{ sumologic_access_id_param }} --query 'Parameter.Value' --output text
+    --region {{ ansible_ec2_placement_region }}
+  register: sumo_access_id_query
+
+- name: Get Sumo AccessKey From Param Store
+  shell: >
+    aws ssm get-parameter --name {{ sumologic_access_key_param }} --with-decryption --query 'Parameter.Value' --output text
+    --region {{ ansible_ec2_placement_region }}
+  register: sumo_access_key_query
+
+- name: Sumologic /etc/sumo.conf
+  template:
+    src: sumo.conf.j2
+    dest: /etc/sumo.conf 
+    owner: root
+    group: root
+    mode: 600
+
+- name: Sumologic /etc/sumo_sources.json
+  template:
+    src: sumo_sources.json.j2
+    dest: /etc/sumo_sources.json
+    owner: root
+    group: root
+    mode: 600

@@ -1,0 +1,13 @@
+---
+
+- name: Set Broker Id (Standalone)
+  set_fact:
+    kafka_broker_id: 0
+
+- name: Set Zookeeper Server List (Standalone)
+  set_fact:
+    kafka_zookeeper_list: "localhost:2181"
+
+- name: Set Broker DNS Name (Standalone)
+  set_fact:
+    kafka_broker_dns: "{{ kafka_dns_name }}"

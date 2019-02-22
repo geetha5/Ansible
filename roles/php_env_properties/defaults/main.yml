@@ -1,0 +1,13 @@
+---
+
+# php_env_props_file - the file location for the php env properties
+php_env_props_file: /var/www/public/.env
+
+# php_env_props_properties: a dict of properties if the env file is already there it will add or update the property
+# php_env_props_properties:
+#   <prop A>:
+#     prop_name: <the name of the property>
+#     param_store: <yes or no> - if the value is held in param store encrypted or not
+#     encrypted: <yes or no> - if the value is in param store and is encrypted
+#     value: <param store key or value> - either the key for param store or the value
+php_env_props_properties:

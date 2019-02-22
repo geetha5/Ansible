@@ -1,0 +1,9 @@
+---
+
+- name: Set Kafka Archive Name
+  set_fact:
+    kafka_archive_name: "{{ kafka_package_url | regex_replace('.*\\/(.*\\.(tgz|zip|tar\\.gz))$', '\\1') }}"
+
+- name: Set Kafka Directory Name
+  set_fact:
+    kafka_dir_name: "{{ kafka_package_url | regex_replace('.*\\/((.*)\\.(tgz|zip|tar\\.gz))$', '\\2') }}"

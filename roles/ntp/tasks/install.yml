@@ -1,0 +1,11 @@
+---
+
+- name: Install NTP Client
+  yum:
+    name: ntp
+    state: present
+
+- name: Enable NTP at Boot
+  service:
+    name: ntpd
+    enabled: yes

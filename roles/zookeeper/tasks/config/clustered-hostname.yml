@@ -1,0 +1,23 @@
+---
+
+- name: Set AWS Hostname Fact (Zookeeper Clustered)
+  set_fact:
+    aws_hostname: "aws-{{ host_purpose }}-{{ lookup('env', 'ZOOKEEPER_INSTANCE_NUMBER') }}-{{ host_environment }}-{{ ansible_ec2_local_ipv4 | regex_replace('^(\\d+).(\\d+).(\\d+).(\\d+)$', '\\1_\\2_\\3_\\4') }}"
+
+- name: Set Hostname (Zookeeper Clustered)
+  hostname:
+    name: "{{ aws_hostname }}"
+
+- name: Set Instance Name Tag (Zookeeper Clustered)
+  ec2_tag:
+    region: "{{ ansible_ec2_placement_region }}"
+    resource: "{{ ansible_ec2_instance_id }}"
+    state: present
+    tags:
+      Name: "{{ aws_hostname }}"
+      Purpose: "{{ host_purpose }}"
+      Group: "{{ owning_group }}"
+      Environment: "{{ host_environment }}"
+      ZookeeperInstance: "{{ lookup('env', 'ZOOKEEPER_INSTANCE_NUMBER') }}"
+
+

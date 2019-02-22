@@ -1,0 +1,62 @@
+---
+
+- name: Zookeeper Supervisor Config
+  template:
+    src: supervisor.conf.j2
+    dest: /etc/supervisor/conf.d/zookeeper.conf
+    owner: root
+    group: root
+    mode: 0775
+  register: zookeeper_supervisor_config
+
+- name: Zookeeper Supervisor Reread
+  shell: /usr/local/bin/supervisorctl reread
+  when: zookeeper_supervisor_config.changed
+
+- name: Zookeeper Supervisor Update
+  shell: /usr/local/bin/supervisorctl update
+  when: zookeeper_supervisor_config.changed
+
+- name: Zookeeper log dir
+  file:
+    path: /var/log/zookeeper
+    state: directory
+    owner: zookeeper
+    mode: zookeeper
+    mode: 0664
+
+- name: Zookeeper Config
+  template:
+    src: zoo.cfg.j2
+    dest: "/opt/{{ zookeeper_dir_name }}/conf/zoo.cfg"
+    owner: zookeeper
+    group: zookeeper
+    mode: 0644
+  notify:
+    - Restart Zookeeper
+
+- name: Zookeeper java.env
+  template:
+    src: java.env.j2
+    dest: "/opt/{{ zookeeper_dir_name }}/conf/java.env"
+    owner: zookeeper
+    group: zookeeper
+    mode: 0644
+  notify:
+  - Restart Zookeeper
+
+- name: Write myid file
+  template:
+    src: myid.j2
+    dest: /var/lib/zookeeper/myid
+    owner: zookeeper
+    group: zookeeper
+    mode: 0644
+  when: zookeeper_cluster_type == "cluster"
+
+- name: Instance Rename
+  include_tasks: config/clustered-hostname.yml
+  when: zookeeper_cluster_type == "cluster"
+
+- name: Zookeeper Setup Flush Handlers
+  meta: flush_handlers

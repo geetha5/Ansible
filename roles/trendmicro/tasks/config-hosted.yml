@@ -1,0 +1,14 @@
+---
+
+- name: Check DS Agent Activation
+  shell: "/opt/ds_agent/dsa_query -c GetAgentStatus | grep 'AgentStatus.dsmDN'"
+  register: ds_agent_activation
+  ignore_errors: yes
+
+- name: Reset DS Agent
+  shell: /opt/ds_agent/dsa_control -r
+  when: ds_agent_activation.rc != 0
+
+- name: Activate DS Agent
+  shell: "/opt/ds_agent/dsa_control -a {{ trendmicro_dsm_url }} policyid:{{ trendmicro_policy_id }}"
+  when: ds_agent_activation.rc != 0
